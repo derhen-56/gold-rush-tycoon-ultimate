@@ -1,0 +1,35 @@
+{
+  "name": "gold-rush-tycoon-ultimate",
+  "version": "2.0.0",
+  "description": "GOLD RUSH TYCOON ULTIMATE - Simulation minière 3D ultra-réaliste Canada/USA - Buy/Rent/Lease",
+  "main": "electron.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3000 --open",
+    "start": "electron .",
+    "desktop": "electron .",
+    "build:web": "vite build",
+    "build:desktop": "electron-builder --win --mac --linux --x64",
+    "deploy": "gh-pages -d dist"
+  },
+  "keywords": ["gold-rush", "tycoon", "3d", "threejs", "mining", "snowrunner", "simulation"],
+  "author": "Gold Rush Studio",
+  "license": "MIT",
+  "dependencies": {
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.10.0",
+    "vite": "^5.2.0",
+    "gh-pages": "^6.1.1"
+  },
+  "build": {
+    "appId": "com.goldrush.tycoon.ultimate",
+    "productName": "Gold Rush Tycoon Ultimate",
+    "files": ["**/*", "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}", "!**/*.ts", "!**/*.map"],
+    "win": { "target": "nsis", "icon": "public/icon.png" },
+    "mac": { "target": "dmg", "icon": "public/icon.png" },
+    "linux": { "target": "AppImage", "icon": "public/icon.png" }
+  }
+}

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GOLD RUSH TYCOON ULTIMATE - 3D Mining Sim</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#090a08;color:#e5e5e5;font-family:'Inter',sans-serif;overflow:hidden;user-select:none}
+.font-anton{font-family:'Anton',sans-serif}
+.font-mono{font-family:'JetBrains Mono',monospace}
+#canvas3d{position:absolute;inset:0;width:100%;height:100%;display:block}
+.ui-layer{position:absolute;inset:0;pointer-events:none}
+.ui-layer > *{pointer-events:auto}
+.top-bar{position:absolute;top:0;left:0;right:0;height:68px;background:linear-gradient(180deg,rgba(0,0,0,0.95),rgba(0,0,0,0.75));backdrop-filter:blur(12px);border-bottom:2px solid #ffb30044;display:flex;align-items:center;padding:0 16px;gap:14px;z-index:20}
+.bottom-bar{position:absolute;bottom:0;left:0;right:360px;height:64px;background:rgba(0,0,0,0.88);backdrop-filter:blur(10px);border-top:1px solid #333;display:flex;align-items:center;padding:0 16px;gap:12px;z-index:20}
+.right-panel{position:absolute;top:68px;right:0;bottom:0;width:360px;background:rgba(10,9,8,0.92);backdrop-filter:blur(16px);border-left:1px solid #222;display:flex;flex-direction:column;z-index:20}
+.pill{background:#000;border:1px solid #2a2a2a;border-radius:10px;padding:6px 12px;min-width:108px}
+.pill .label{font-size:8px;letter-spacing:1.5px;color:#888;font-weight:700;text-transform:uppercase}
+.pill .value{font-family:'JetBrains Mono';font-weight:700;font-size:13px;margin-top:2px}
+.btn{border:0;border-radius:10px;padding:10px 18px;font-weight:800;font-size:12px;letter-spacing:0.5px;cursor:pointer;transition:0.15s}
+.btn:active{transform:scale(0.97)}
+.btn-gold{background:#ffb300;color:#000}
+.btn-gold:hover{background:#ffbf26}
+.btn-dark{background:#1e1e1e;color:#e5e5e5;border:1px solid #333}
+.btn-dark:hover{background:#2a2a2a}
+.nav{position:absolute;left:14px;top:84px;z-index:21;display:flex;flex-direction:column;gap:10px}
+.navb{width:66px;height:66px;border-radius:16px;background:rgba(20,20,20,0.9);border:1px solid #333;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;backdrop-filter:blur(8px)}
+.navb.active{background:#ffb300;color:#000;border-color:#ffb300;box-shadow:0 0 24px #ffb30055}
+.navb span{font-size:20px}
+.navb em{font-style:normal;font-size:8px;font-weight:800;letter-spacing:1px}
+.log{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:6px;font-family:'JetBrains Mono';font-size:11px;line-height:1.35}
+.log::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#333}
+.entry{padding:6px 8px;border-left:2px solid #333;background:rgba(255,255,255,0.02);border-radius:0 8px 8px 0}
+.entry.gold{border-color:#ffb300;background:rgba(255,179,0,0.08)}
+.entry.bad{border-color:#ef4444;background:rgba(239,68,68,0.08)}
+.entry.warn{border-color:#f59e0b;background:rgba(245,158,11,0.06)}
+.card{background:linear-gradient(145deg,#1d1c19,#12110f);border:1px solid #2a2825;border-radius:18px;padding:14px;transition:0.2s}
+.card:hover{border-color:#444}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal{position:absolute;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;z-index:100}
+.hidden{display:none!important}
+#mapCanvas{width:100%;height:100%;background:#0e1210}
+.concession-pin{position:absolute;transform:translate(-50%,-50%);cursor:pointer}
+.concession-pin .dot{width:14px;height:14px;border-radius:50%;background:#ffb300;box-shadow:0 0 12px #ffb300;border:2px solid #000}
+#loading{position:absolute;inset:0;background:#000;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+.bar{width:360px;height:6px;background:#1a1a1a;border-radius:999px;overflow:hidden}
+.bar>div{height:100%;background:linear-gradient(90deg,#ff8f00,#ffb300);width:0%;transition:0.3s}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="font-anton" style="font-size:64px;line-height:0.9;text-align:center">GOLD<br><span style="color:#ffb300">RUSH</span><br>ULTIMATE</div>
+  <div style="font-size:12px;letter-spacing:3px;color:#999">3D • CANADA • ALASKA • USA • PHYSIQUE BOUE</div>
+  <div class="bar"><div id="loadBar"></div></div>
+  <div id="loadTxt" class="font-mono" style="font-size:11px;color:#666">Chargement modèles 3D...</div>
+</div>
+
+<canvas id="canvas3d"></canvas>
+
+<div class="nav" id="leftNav">
+  <button class="navb active" data-view="mine"><span>⛏️</span><em>MINE 3D</em></button>
+  <button class="navb" data-view="map"><span>🗺️</span><em>CARTE</em></button>
+  <button class="navb" data-view="claims"><span>📜</span><em>CLAIMS</em></button>
+  <button class="navb" data-view="fleet"><span>🚜</span><em>FLOTTE</em></button>
+  <button class="navb" data-view="market"><span>🏦</span><em>MARCHÉ</em></button>
+  <button class="navb" data-view="finance"><span>📊</span><em>FINANCE</em></button>
+</div>
+
+<div class="top-bar">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:40px;height:40px;background:#ffb300;color:#000;display:flex;align-items:center;justify-content:center;font-family:Anton;font-size:20px">GR</div>
+    <div>
+      <div id="hudCompany" class="font-anton" style="font-size:16px;line-height:1">YUKON GOLD CO</div>
+      <div class="font-mono" style="font-size:10px;color:#999"><span id="hudSeason">ÉTÉ</span> • AN <span id="hudYear">1</span> • JOUR <span id="hudDay">1</span>/105 — <span id="hudWeather">Soleil 14°C</span></div>
+    </div>
+  </div>
+  <div style="width:1px;height:36px;background:#222;margin:0 8px"></div>
+  <div class="pill"><div class="label">Trésorerie</div><div id="hudMoney" class="value" style="color:#ffb300">$100,000</div></div>
+  <div class="pill" style="border-color:#3a2a00"><div class="label">Or Coffre</div><div style="display:flex;gap:6px;align-items:baseline"><span id="hudGold" class="value" style="color:#ffd54f">0.00 oz</span><span id="hudGoldVal" style="font-size:10px;color:#777">$0</span></div></div>
+  <div class="pill"><div class="label">Stock Pay 3D</div><div id="hudPay" class="value" style="color:#ff8f00">0 yd³</div></div>
+  <div class="pill" style="min-width:90px"><div class="label">Diesel • Élec</div><div style="display:flex;gap:6px;align-items:center"><div style="width:54px;height:5px;background:#222;border-radius:99px;overflow:hidden"><div id="fuelBar" style="height:100%;width:70%;background:#ef4444"></div></div><span id="hudFuel" class="font-mono" style="font-size:10px">2500 L</span><span id="hudPower" style="font-size:10px;margin-left:4px">⚡ +120kW</span></div></div>
+  <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+    <div class="pill" style="min-width:140px"><div class="label">Cours Or Live</div><div class="value" style="color:#ffb300" id="hudGoldPrice">$1,945 /oz <span style="color:#4ade80;font-size:10px">▲ 1.2%</span></div></div>
+    <button id="saveBtn" class="btn btn-dark" style="width:42px;height:42px;display:flex;align-items:center;justify-content:center">💾</button>
+    <button id="photoBtn" class="btn btn-dark" title="Photo mode">📷</button>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;font-weight:800;letter-spacing:1px;color:#777">VITESSE</span>
+    <div style="display:flex;background:#000;border:1px solid #222;border-radius:999px;padding:3px;gap:2px">
+      <button data-speed="0" class="speed btn btn-dark" style="width:34px;height:28px;border-radius:999px;padding:0">⏸</button>
+      <button data-speed="1" class="speed btn btn-gold" style="width:44px;height:28px;border-radius:999px;padding:0">x1</button>
+      <button data-speed="3" class="speed btn btn-dark" style="width:44px;height:28px;border-radius:999px">x3</button>
+      <button data-speed="10" class="speed btn btn-dark" style="width:44px;height:28px;border-radius:999px">x10</button>
+      <button data-speed="30" class="speed btn btn-dark" style="width:48px;height:28px;border-radius:999px">x30</button>
+    </div>
+  </div>
+  <div style="flex:1;margin:0 18px"><div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono';font-size:9px;color:#666;margin-bottom:4px"><span>SAISON • PROGRESSION BOUE</span><span id="seasonLabel">J1 / 105</span></div><div style="height:6px;background:#000;border:1px solid #222;border-radius:999px;overflow:hidden;display:flex"><div id="seasonBar" style="height:100%;width:5%;background:linear-gradient(90deg,#ff8f00,#ffb300)"></div></div></div>
+  <div style="display:flex;gap:8px">
+    <div class="pill" style="min-width:100px"><div class="label">Prod / Jour</div><div id="dailyProd" class="value" style="color:#ffb300">0.00 oz</div></div>
+    <button id="endDayBtn" class="btn btn-dark" style="background:#fff;color:#000;font-family:Anton;letter-spacing:1px;padding:0 18px">FIN JOURNÉE 🌙</button>
+    <button id="dispatchTruckBtn" class="btn btn-gold">🚛 DISPATCH</button>
+  </div>
+</div>
+
+<div class="right-panel">
+  <div style="height:44px;border-bottom:1px solid #222;display:flex;align-items:center;padding:0 14px;justify-content:space-between"><span class="font-anton" style="letter-spacing:1px;font-size:13px">OPÉRATIONS TEMPS RÉEL</span><div style="display:flex;gap:4px"><div style="width:8px;height:8px;background:#ef4444;border-radius:50%"></div><div style="width:8px;height:8px;background:#f59e0b;border-radius:50%"></div><div style="width:8px;height:8px;background:#22c55e;border-radius:50%"></div></div></div>
+  
+  <div style="padding:10px;border-bottom:1px solid #1e1e1e;background:rgba(0,0,0,0.4)">
+    <div style="font-size:10px;letter-spacing:1.5px;color:#777;font-weight:800">FLOTTE ACTIVE 3D — <span id="activeClaimName">AUCUNE</span></div>
+    <div id="fleetList3d" style="margin-top:8px;display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto"></div>
+    <div id="noFleet3d" style="padding:18px;text-align:center;color:#555;font-size:11px">Aucune machine. Va dans FLOTTE pour louer/acheter.</div>
+  </div>
+
+  <div style="height:32px;background:#181611;display:flex;align-items:center;padding:0 12px;font-size:10px;font-weight:800;letter-spacing:1px;color:#999">JOURNAL RADIO CHANTIER / PHYSICS LOG</div>
+  <div id="gameLog" class="log"></div>
+
+  <div style="padding:8px;border-top:1px solid #222;display:flex;gap:6px">
+    <input id="cheat" placeholder="CODE..." style="flex:1;background:#000;border:1px solid #222;border-radius:8px;padding:6px 10px;font-family:'JetBrains Mono';font-size:10px;color:#fff">
+    <button id="fuelBtn" class="btn btn-dark" style="font-size:10px">FUEL +1500L</button>
+  </div>
+</div>
+
+<!-- VIEWS OVERLAY -->
+<div id="viewOverlay" style="position:absolute;left:90px;top:68px;right:360px;bottom:64px;z-index:15;pointer-events:none"></div>
+
+<!-- MAP VIEW -->
+<div id="mapView" class="hidden" style="position:absolute;left:90px;top:68px;right:360px;bottom:64px;background:#0b130e;z-index:16;overflow:auto">
+  <div style="position:relative;width:100%;min-height:100%">
+    <img src="https://images.unsplash.com/photo-1526772661823-35e2874a4933?q=80&w=2000" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.18">
+    <div style="position:relative;padding:24px">
+      <h2 class="font-anton" style="font-size:36px">CARTE NORTH AMERICA GOLD BELT</h2>
+      <div style="font-size:12px;color:#aaa;max-width:720px;margin-top:6px">Achète, loue, ou deviens propriétaire bailleur. 18 concessions réelles basées sur USGS. SnowRunner: pistes boueuses entre claims, coût transport diesel.</div>
+      
+      <div style="margin-top:20px;display:grid;grid-template-columns:1fr 380px;gap:16px">
+        <div style="position:relative;background:#000;border:1px solid #222;border-radius:18px;overflow:hidden;height:640px">
+          <!-- Fake map with pins -->
+          <div style="position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,#1a2a1a,#000),url('https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Map_of_Canada_and_Alaska.png/800px-Map_of_Canada_and_Alaska.png');background-size:cover;background-blend-mode:overlay;opacity:0.9"></div>
+          <svg viewBox="0 0 800 640" style="position:absolute;inset:0;width:100%;height:100%">
+            <!-- Alaska -->
+            <g id="pins"></g>
+          </svg>
+          <div id="mapPinsDom" style="position:absolute;inset:0"></div>
+        </div>
+        <div id="claimDetailPanel" style="background:rgba(15,14,12,0.95);border:1px solid #333;border-radius:18px;padding:16px;backdrop-filter:blur(12px)">
+          <div style="text-align:center;color:#666;padding:30px 0">Sélectionne une concession sur la carte pour voir achat / location / mise en location</div>
+        </div>
+      </div>
+
+      <div id="claimsGrid" style="margin-top:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CLAIMS MANAGER VIEW -->
+<div id="claimsView" class="hidden" style="position:absolute;left:90px;top:68px;right:360px;bottom:64px;background:#10100e;z-index:16;overflow:auto;padding:22px">
+  <h2 class="font-anton" style="font-size:30px">📜 PORTEFEUILLE DE CONCESSIONS</h2>
+  <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px" id="portfolioStats"></div>
+  <div id="portfolioList" style="margin-top:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px"></div>
+</div>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
