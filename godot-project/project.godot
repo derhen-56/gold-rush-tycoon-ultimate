@@ -1,0 +1,13 @@
+; Engine configuration file.
+config_version=5
+[application]
+name="Gold Rush Tycoon Ultimate V5"
+run/main_scene="res://scenes/Main.tscn"
+config/features=PackedStringArray("4.3")
+boot_splash/bg_color=Color(0.07, 0.09, 0.07, 1)
+config/icon="res://assets/icon.png"
+[autoload]
+GameState="*res://scripts/GameState.gd"
+[rendering]
+renderer/rendering_method="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.07, 0.11, 0.09, 1)

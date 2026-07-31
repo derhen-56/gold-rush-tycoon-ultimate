@@ -1,0 +1,65 @@
+name: Build Gold Rush Tycoon V5 - .exe + Web
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-cpp:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Install Raylib
+        run: |
+          git clone --depth 1 https://github.com/raysan5/raylib.git raylib
+          cd raylib/src
+          make PLATFORM=PLATFORM_DESKTOP
+      - name: Configure CMake
+        run: |
+          cd cpp-standalone
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build C++
+        run: |
+          cd cpp-standalone
+          cmake --build build --config Release
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: GoldRushTycoon-Windows
+          path: cpp-standalone/build/Release/GoldRushTycoon.exe
+
+  build-godot-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Godot
+        run: |
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+          unzip -q Godot_v4.3-stable_linux.x86_64.zip
+          chmod +x Godot_v4.3-stable_linux.x86_64
+      - name: Export Web
+        run: |
+          mkdir -p build-web
+          ./Godot_v4.3-stable_linux.x86_64 --headless --export-release "Web" build-web/index.html || echo "Export needs templates, skipping for now"
+      - name: Deploy to Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build-web
+          publish_branch: gh-pages-web
+          publish: false
+
+  build-github-pages-current:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy current web version (Three.js V3) to Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          publish_branch: gh-pages
+          exclude_assets: '.github,cpp-standalone,godot-project,raylib-src,godot-cpp,*.md'
