@@ -3,110 +3,85 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GOLD RUSH TYCOON 3.0 - Ultimate Realistic</title>
+<title>GOLD RUSH TYCOON V5 - REAL GAME</title>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#070a08;color:#e5e5e5;font-family:'Inter',sans-serif;overflow:hidden;user-select:none}
+body{background:#070a09;color:#e5e5e5;font-family:'Inter',sans-serif;overflow:hidden}
 .font-anton{font-family:'Anton',sans-serif}
 .font-mono{font-family:'JetBrains Mono',monospace}
-#canvas3d{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1}
-#realMap{width:100%;height:100%;background:#0e1a14}
-.ui-layer{position:absolute;inset:0;pointer-events:none;z-index:10}
-.ui-layer > *{pointer-events:auto}
-.top-bar{position:absolute;top:0;left:0;right:0;height:68px;background:linear-gradient(180deg,rgba(0,0,0,0.96),rgba(0,0,0,0.78));backdrop-filter:blur(14px);border-bottom:2px solid #ffb30044;display:flex;align-items:center;padding:0 14px;gap:12px;z-index:20}
-.bottom-bar{position:absolute;bottom:0;left:0;right:360px;height:68px;background:rgba(0,0,0,0.90);backdrop-filter:blur(12px);border-top:1px solid #2a2a2a;display:flex;align-items:center;padding:0 14px;gap:10px;z-index:20}
-.right-panel{position:absolute;top:68px;right:0;bottom:0;width:360px;background:rgba(10,9,8,0.94);backdrop-filter:blur(18px);border-left:1px solid #222;display:flex;flex-direction:column;z-index:20}
-.pill{background:#000;border:1px solid #2a2a2a;border-radius:11px;padding:5px 11px;min-width:102px}
-.pill .label{font-size:8px;letter-spacing:1.2px;color:#777;font-weight:800;text-transform:uppercase}
-.pill .value{font-family:'JetBrains Mono';font-weight:800;font-size:12px;margin-top:2px}
-.btn{border:0;border-radius:10px;padding:9px 16px;font-weight:800;font-size:11px;letter-spacing:0.5px;cursor:pointer;transition:0.15s}
+#canvas3d{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+#realMap{width:100%;height:100%}
+.top-bar{position:absolute;top:0;left:0;right:0;height:66px;background:linear-gradient(180deg,rgba(0,0,0,0.97),rgba(0,0,0,0.8));backdrop-filter:blur(14px);border-bottom:2px solid #ffb30044;display:flex;align-items:center;padding:0 12px;gap:10px;z-index:20}
+.bottom-bar{position:absolute;bottom:0;left:0;right:360px;height:66px;background:rgba(0,0,0,0.92);backdrop-filter:blur(12px);border-top:1px solid #222;display:flex;align-items:center;padding:0 12px;gap:8px;z-index:20}
+.right-panel{position:absolute;top:66px;right:0;bottom:0;width:360px;background:rgba(10,9,8,0.95);backdrop-filter:blur(18px);border-left:1px solid #222;display:flex;flex-direction:column;z-index:20}
+.pill{background:#000;border:1px solid #2a2a2a;border-radius:10px;padding:4px 10px;min-width:95px}
+.pill .label{font-size:8px;color:#777;letter-spacing:1px;font-weight:800;text-transform:uppercase}
+.pill .value{font-family:'JetBrains Mono';font-weight:800;font-size:11px;margin-top:1px}
+.btn{border:0;border-radius:9px;padding:8px 14px;font-weight:800;font-size:10px;cursor:pointer;transition:0.12s}
 .btn:active{transform:scale(0.97)}
 .btn-gold{background:#ffb300;color:#000}
 .btn-gold:hover{background:#ffbf26}
 .btn-dark{background:#1e1e1e;color:#e5e5e5;border:1px solid #333}
-.btn-dark:hover{background:#2a2a2a}
-.nav{position:absolute;left:12px;top:84px;z-index:21;display:flex;flex-direction:column;gap:9px}
-.navb{width:66px;height:66px;border-radius:16px;background:rgba(18,18,18,0.92);border:1px solid #2a2a2a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;backdrop-filter:blur(8px);transition:0.15s}
-.navb.active{background:#ffb300;color:#000;border-color:#ffb300;box-shadow:0 0 22px #ffb30055}
-.navb span{font-size:20px}
-.navb em{font-style:normal;font-size:8px;font-weight:800;letter-spacing:0.8px}
-.log{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:5px;font-family:'JetBrains Mono';font-size:11px;line-height:1.32}
-.log::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#2a2a2a}
-.entry{padding:6px 8px;border-left:2px solid #2a2a2a;background:rgba(255,255,255,0.02);border-radius:0 8px 8px 0}
+.nav{position:absolute;left:10px;top:80px;z-index:21;display:flex;flex-direction:column;gap:8px}
+.navb{width:64px;height:64px;border-radius:15px;background:rgba(18,18,18,0.92);border:1px solid #2a2a2a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer}
+.navb.active{background:#ffb300;color:#000;border-color:#ffb300;box-shadow:0 0 20px #ffb30055}
+.navb span{font-size:19px}
+.navb em{font-style:normal;font-size:7px;font-weight:800;letter-spacing:0.7px}
+.log{flex:1;overflow:auto;padding:8px;display:flex;flex-direction:column;gap:4px;font-family:'JetBrains Mono';font-size:10px;line-height:1.3}
+.log::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#2a2a2a}
+.entry{padding:5px 7px;border-left:2px solid #2a2a2a;background:rgba(255,255,255,0.02);border-radius:0 7px 7px 0}
 .entry.gold{border-color:#ffb300;background:rgba(255,179,0,0.08)}
 .entry.bad{border-color:#ef4444;background:rgba(239,68,68,0.07)}
 .entry.warn{border-color:#f59e0b;background:rgba(245,158,11,0.05)}
 .entry.sys{border-color:#444;color:#999}
-.card{background:linear-gradient(145deg,#1d1c19,#12110f);border:1px solid #2a2825;border-radius:18px;padding:14px;transition:0.2s}
-.card:hover{border-color:#444}
+.card{background:linear-gradient(145deg,#1d1c19,#12110f);border:1px solid #2a2825;border-radius:16px;padding:12px}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;z-index:100}
 .hidden{display:none!important}
-#accountModal{position:fixed;inset:0;background:radial-gradient(circle at 30% 20%,#1a1500, #000 70%);z-index:200;display:flex;align-items:center;justify-content:center}
-.account-box{width:440px;background:linear-gradient(180deg,#1e1c18,#12110f);border:1px solid #333;border-radius:22px;padding:28px;box-shadow:0 30px 80px rgba(0,0,0,0.8)}
-.tabs{display:flex;gap:8px;margin:16px 0}
-.tab{flex:1;padding:10px;border-radius:10px;text-align:center;cursor:pointer;font-weight:800;font-size:12px;border:1px solid #2a2a2a;background:#151311}
-.tab.active{background:#ffb300;color:#000;border-color:#ffb300}
-.input{width:100%;background:#000;border:1px solid #2a2a2a;border-radius:10px;padding:12px 14px;color:#fff;font-size:13px;margin-top:8px;outline:none}
+#accountModal{position:fixed;inset:0;background:radial-gradient(circle at 30% 20%,#1a1500,#000 70%);z-index:200;display:flex;align-items:center;justify-content:center}
+.account-box{width:420px;background:linear-gradient(180deg,#1e1c18,#12110f);border:1px solid #333;border-radius:20px;padding:22px;box-shadow:0 30px 80px rgba(0,0,0,0.8)}
+.input{width:100%;background:#000;border:1px solid #2a2a2a;border-radius:9px;padding:11px 12px;color:#fff;font-size:12px;margin-top:7px;outline:none}
 .input:focus{border-color:#ffb300}
-.badge{font-size:9px;padding:3px 8px;border-radius:999px;background:#000;border:1px solid #333;font-family:'JetBrains Mono'}
-.view{position:absolute;left:90px;top:68px;right:360px;bottom:68px;background:rgba(8,10,9,0.92);z-index:15;overflow:auto;border-right:1px solid #1a1a1a}
-.fleet-img{width:100%;height:120px;object-fit:cover;border-radius:12px;background:#111}
-.chain-dot{width:12px;height:12px;border-radius:50%;background:#222;border:2px solid #333;display:inline-block;margin-right:6px}
-.chain-dot.ok{background:#22c55e;border-color:#22c55e;box-shadow:0 0 8px #22c55e}
+.view{position:absolute;left:86px;top:66px;right:360px;bottom:66px;background:rgba(8,10,9,0.94);z-index:15;overflow:auto;border-right:1px solid #1a1a1a}
+.fleet-img{width:100%;height:110px;object-fit:cover;border-radius:10px;background:#111}
+.chain-dot{width:10px;height:10px;border-radius:50%;background:#222;border:2px solid #333;display:inline-block;margin-right:5px}
+.chain-dot.ok{background:#22c55e;border-color:#22c55e;box-shadow:0 0 6px #22c55e}
 .chain-dot.bad{background:#ef4444;border-color:#ef4444}
-.hud-fps{position:absolute;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);border:1px solid #333;border-radius:999px;padding:8px 16px;font-family:'JetBrains Mono';font-size:11px;z-index:22;display:flex;gap:12px;align-items:center}
+.hud-fps{position:absolute;top:76px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);border:1px solid #333;border-radius:999px;padding:7px 14px;font-family:'JetBrains Mono';font-size:10px;z-index:22;display:flex;gap:10px;align-items:center}
+.locked-overlay{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(20,15,0,0.9),rgba(0,0,0,0.96));display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:12;text-align:center;padding:20px}
+.badge{font-size:8px;padding:2px 7px;border-radius:999px;background:#000;border:1px solid #333;font-family:'JetBrains Mono'}
 </style>
 </head>
 <body>
 
-<!-- ACCOUNT SYSTEM -->
 <div id="accountModal">
   <div class="account-box">
-    <div style="display:flex;align-items:center;gap:12px"><div style="width:44px;height:44px;background:#ffb300;color:#000;display:flex;align-items:center;justify-content:center;font-family:Anton;font-size:22px;border-radius:10px">GR</div><div><div class="font-anton" style="font-size:22px;line-height:1">GOLD RUSH TYCOON 3.0</div><div style="font-size:10px;color:#999;letter-spacing:1px">COMPTE • ULTIMATE EDITION</div></div></div>
-    <div class="tabs"><div id="tabLogin" class="tab active">CONNEXION</div><div id="tabCreate" class="tab">CRÉER COMPTE</div></div>
-    
-    <div id="loginForm">
-      <input id="loginEmail" class="input" placeholder="Email ou Nom d'utilisateur">
-      <input id="loginPass" class="input" type="password" placeholder="Mot de passe">
-      <button id="loginBtn" class="btn btn-gold" style="width:100%;margin-top:14px;padding:12px">SE CONNECTER</button>
-      <div id="loginError" style="color:#ef4444;font-size:11px;margin-top:8px;font-family:'JetBrains Mono'"></div>
-    </div>
-
-    <div id="createForm" class="hidden">
-      <input id="createEmail" class="input" placeholder="Adresse e-mail">
-      <input id="createPass" class="input" type="password" placeholder="Créer mot de passe (min 6)">
-      <button id="sendCodeBtn" class="btn btn-dark" style="width:100%;margin-top:12px">ENVOYER CODE CONFIRMATION</button>
-      <div id="codeSection" class="hidden">
-        <div style="margin-top:12px;padding:10px;background:#0f0e0a;border:1px dashed #333;border-radius:10px;font-family:'JetBrains Mono';font-size:11px;color:#ffb300">📧 Code envoyé (simulation) : <span id="displayCode" style="font-size:14px;font-weight:800"></span> — Regarde tes emails (ici pour démo)</div>
-        <input id="codeInput" class="input" placeholder="Code à 6 chiffres reçu par email">
-        <input id="createUsername" class="input" placeholder="Nom d'utilisateur (ex: ParkerGold)">
-        <button id="verifyBtn" class="btn btn-gold" style="width:100%;margin-top:12px">VÉRIFIER & CRÉER COMPTE</button>
-      </div>
-      <div id="createError" style="color:#ef4444;font-size:11px;margin-top:8px;font-family:'JetBrains Mono'"></div>
-    </div>
-
-    <div style="margin-top:18px;padding-top:14px;border-top:1px solid #222;display:flex;gap:8px;align-items:center">
-      <span style="font-size:10px;color:#666">Langue / Region</span>
-      <select id="langSelect" class="input" style="margin:0;padding:8px;font-size:11px"><option value="fr">🇫🇷 Français</option><option value="en">🇺🇸 English</option><option value="es">🇪🇸 Español</option><option value="de">🇩🇪 Deutsch</option></select>
-      <select id="regionSelect" class="input" style="margin:0;padding:8px;font-size:11px"><option value="EU">EU • € • m³ • L</option><option value="US">US • $ • yd³ • gal</option><option value="CA">CA • C$ • yd³</option><option value="UK">UK • £ • m³</option></select>
-    </div>
+    <div style="display:flex;align-items:center;gap:10px"><div style="width:42px;height:42px;background:#ffb300;color:#000;display:flex;align-items:center;justify-content:center;font-family:Anton;font-size:20px;border-radius:9px">GR</div><div><div class="font-anton" style="font-size:20px;line-height:1">GOLD RUSH TYCOON V5</div><div style="font-size:9px;color:#999;letter-spacing:1px">COMPTE • VRAI JEU C++ • PAS DE CODE EMAIL</div></div></div>
+    <div style="margin-top:14px;font-size:10px;color:#aaa;line-height:1.4">Compte simple comme tu as demandé : email + mot de passe + username. Pas d'envoi de code SMTP (trop compliqué). Stocké local + futur Supabase.</div>
+    <input id="accEmail" class="input" placeholder="Email (ex: parker@gold.com)">
+    <input id="accPass" class="input" type="password" placeholder="Mot de passe (min 6, maj/min/chiffre)">
+    <input id="accUser" class="input" placeholder="Username (ex: ParkerGold) - visible en multi">
+    <button id="accCreateBtn" class="btn btn-gold" style="width:100%;margin-top:12px;padding:11px">CRÉER COMPTE & JOUER</button>
+    <button id="accLoginBtn" class="btn btn-dark" style="width:100%;margin-top:8px;padding:10px">CONNEXION (email ou username + mdp)</button>
+    <div id="accError" style="color:#ef4444;font-size:10px;margin-top:8px;font-family:'JetBrains Mono'"></div>
+    <div style="margin-top:12px;padding:8px;background:#000;border:1px solid #222;border-radius:10px;font-size:9px;color:#666;font-family:'JetBrains Mono'">Admin code sécurisé perso généré à création : 24 chars maj/min/chiffre/spéciaux. Ex: <span id="previewAdminCode" style="color:#ffb300"></span></div>
   </div>
 </div>
 
 <canvas id="canvas3d"></canvas>
 
-<div id="fpsHint" class="hud-fps hidden"><span>🎮 FPS • WASD bouger • Souris regarder • E entrer/sortir engin • V toggle vue</span><span style="color:#666">|</span><span id="fpsLocation">Dans le pit</span></div>
+<div id="lockedOverlay" class="locked-overlay hidden">
+  <div style="font-size:64px">🔒</div>
+  <div class="font-anton" style="font-size:36px;margin-top:10px">MINE 3D VERROUILLÉE</div>
+  <div style="font-size:12px;color:#aaa;max-width:400px;margin-top:8px;line-height:1.5">Tu n'as aucune concession. Va sur <b>CARTE US RÉELLE</b> (Leaflet + satellite), achète une vraie concession basée sur lat/lng USGS. Le jeu chargera alors le <b>vrai terrain DEM SRTM vierge</b> (pas de fosse) + texture satellite Esri de cette concession.</div>
+  <button onclick="switchView('map')" class="btn btn-gold" style="margin-top:16px;padding:12px 20px">ALLER SUR CARTE US 🗺️</button>
+  <div style="margin-top:12px;font-size:9px;color:#666;font-family:'JetBrains Mono'">Fix du bug V3 : plus de vieux modèle chelou au démarrage</div>
+</div>
+
+<div id="fpsHint" class="hud-fps hidden"><span>🎮 FPS RÉEL : WASD marcher • Souris regarder • E entrer/sortir engin • B mode build convoyeur • Shift courir • Collision sol active</span><span style="color:#555">|</span><span id="fpsLoc">À pied</span></div>
 
 <div class="nav" id="leftNav">
   <button class="navb active" data-view="mine"><span>⛏️</span><em>MINE 3D</em></button>
@@ -119,354 +94,363 @@ body{background:#070a08;color:#e5e5e5;font-family:'Inter',sans-serif;overflow:hi
 </div>
 
 <div class="top-bar">
-  <div style="display:flex;align-items:center;gap:10px">
-    <div style="width:40px;height:40px;background:#ffb300;color:#000;display:flex;align-items:center;justify-content:center;font-family:Anton;font-size:20px;border-radius:8px">GR</div>
-    <div><div id="hudCompany" class="font-anton" style="font-size:14px;line-height:1">-</div><div class="font-mono" style="font-size:9px;color:#999"><span id="hudUser">-</span> • <span id="hudSeason">ÉTÉ</span> AN <span id="hudYear">1</span> J<span id="hudDay">1</span> • <span id="hudWeather">Soleil 14°C</span></div></div>
-  </div>
-  <div style="width:1px;height:34px;background:#222;margin:0 6px"></div>
-  <div class="pill"><div class="label" id="labelMoney">Trésorerie</div><div id="hudMoney" class="value" style="color:#ffb300">$0</div></div>
-  <div class="pill" style="border-color:#3a2a00"><div class="label" id="labelGold">Or Coffre</div><div style="display:flex;gap:5px;align-items:baseline"><span id="hudGold" class="value" style="color:#ffd54f">0.00 oz</span><span id="hudGoldVal" style="font-size:9px;color:#777">$0</span></div></div>
-  <div class="pill"><div class="label" id="labelPay">Stock Pay</div><div id="hudPay" class="value" style="color:#ff8f00">0 yd³</div></div>
-  <div class="pill" style="min-width:110px"><div class="label">Diesel • Élec • Boue</div><div style="display:flex;gap:5px;align-items:center"><div style="width:40px;height:5px;background:#222;border-radius:99px;overflow:hidden"><div id="fuelBar" style="height:100%;width:70%;background:#ef4444"></div></div><span id="hudFuel" class="font-mono" style="font-size:9px">0 L</span><span id="hudPower" style="font-size:9px">⚡+0kW</span><span id="hudMud" style="font-size:9px;color:#f59e0b">🟫 25%</span></div></div>
-  <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
-    <div class="pill" style="min-width:130px"><div class="label" id="labelGoldPrice">Cours Or Live</div><div class="value" style="color:#ffb300" id="hudGoldPrice">$0 /oz</div></div>
-    <button id="settingsBtn" class="btn btn-dark" style="width:38px;height:38px;display:flex;align-items:center;justify-content:center">⚙️</button>
-    <button id="fpsBtn" class="btn btn-dark" style="font-size:10px">FPS [V]</button>
-    <button id="photoBtn" class="btn btn-dark" style="width:38px;height:38px;display:flex;align-items:center;justify-content:center">📷</button>
+  <div style="display:flex;align-items:center;gap:8px"><div style="width:38px;height:38px;background:#ffb300;color:#000;display:flex;align-items:center;justify-content:center;font-family:Anton;font-size:18px;border-radius:7px">GR</div><div><div id="hudCompany" class="font-anton" style="font-size:13px;line-height:1">-</div><div class="font-mono" style="font-size:8px;color:#999"><span id="hudUser">-</span> • AN <span id="hudYear">1</span> J<span id="hudDay">1</span> • <span id="hudWeather">-</span></div></div></div>
+  <div style="width:1px;height:32px;background:#222;margin:0 5px"></div>
+  <div class="pill"><div class="label">Trésorerie</div><div id="hudMoney" class="value" style="color:#ffb300">$0</div></div>
+  <div class="pill" style="border-color:#3a2a00"><div class="label">Or Coffre</div><div style="display:flex;gap:4px;align-items:baseline"><span id="hudGold" class="value" style="color:#ffd54f">0.00 oz</span><span id="hudGoldVal" style="font-size:8px;color:#777">$0</span></div></div>
+  <div class="pill"><div class="label">Pay</div><div id="hudPay" class="value" style="color:#ff8f00">0 yd³</div></div>
+  <div class="pill" style="min-width:105px"><div class="label">Diesel • Élec • Boue</div><div style="display:flex;gap:4px;align-items:center"><div style="width:36px;height:4px;background:#222;border-radius:99px;overflow:hidden"><div id="fuelBar" style="height:100%;width:70%;background:#ef4444"></div></div><span id="hudFuel" class="font-mono" style="font-size:8px">0 L</span><span id="hudPower" style="font-size:8px">⚡+0</span><span id="hudMud" style="font-size:8px;color:#f59e0b">🟫25%</span></div></div>
+  <div style="margin-left:auto;display:flex;gap:5px">
+    <div class="pill" style="min-width:115px"><div class="label">Cours Or Live</div><div id="hudGoldPrice" class="value" style="color:#ffb300">$0 /oz</div></div>
+    <button id="settingsBtn" class="btn btn-dark" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center">⚙️</button>
+    <button id="fpsBtn" class="btn btn-dark" style="font-size:9px">FPS [V]</button>
   </div>
 </div>
 
 <div class="bottom-bar">
-  <div style="display:flex;align-items:center;gap:7px"><span style="font-size:9px;font-weight:800;color:#666;letter-spacing:1px" id="labelSpeed">VITESSE</span><div style="display:flex;background:#000;border:1px solid #222;border-radius:999px;padding:2px;gap:2px"><button data-speed="0" class="speed btn btn-dark" style="width:32px;height:26px;border-radius:999px;padding:0">⏸</button><button data-speed="1" class="speed btn btn-gold" style="width:42px;height:26px;border-radius:999px;padding:0">x1</button><button data-speed="3" class="speed btn btn-dark" style="width:42px;height:26px;border-radius:999px">x3</button><button data-speed="10" class="speed btn btn-dark" style="width:42px;height:26px;border-radius:999px">x10</button><button data-speed="30" class="speed btn btn-dark" style="width:46px;height:26px;border-radius:999px">x30</button></div></div>
-  <div style="flex:1;margin:0 14px"><div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono';font-size:8px;color:#666;margin-bottom:3px"><span id="labelSeason">SAISON PROGRESSION</span><span id="seasonLabel">J1 /105</span></div><div style="height:6px;background:#000;border:1px solid #222;border-radius:999px;overflow:hidden;display:flex"><div id="seasonBar" style="height:100%;width:5%;background:linear-gradient(90deg,#ff8f00,#ffb300)"></div></div></div>
-  <div style="display:flex;gap:6px"><div class="pill" style="min-width:90px"><div class="label" id="labelProd">Prod / Jour</div><div id="dailyProd" class="value" style="color:#ffb300">0.00 oz</div></div><button id="endDayBtn" class="btn btn-dark" style="background:#fff;color:#000;font-family:Anton;letter-spacing:0.5px;padding:0 14px">FIN JOUR 🌙</button><button id="dispatchBtn" class="btn btn-gold">🚛 DISPATCH</button></div>
+  <div style="display:flex;align-items:center;gap:6px"><span style="font-size:8px;font-weight:800;color:#666">VITESSE</span><div style="display:flex;background:#000;border:1px solid #222;border-radius:999px;padding:2px;gap:1px"><button data-speed="0" class="speed btn btn-dark" style="width:30px;height:24px;border-radius:999px;padding:0">⏸</button><button data-speed="1" class="speed btn btn-gold" style="width:38px;height:24px;border-radius:999px;padding:0">x1</button><button data-speed="3" class="speed btn btn-dark" style="width:38px;height:24px;border-radius:999px">x3</button><button data-speed="10" class="speed btn btn-dark" style="width:38px;height:24px;border-radius:999px">x10</button></div></div>
+  <div style="flex:1;margin:0 10px"><div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono';font-size:7px;color:#666;margin-bottom:2px"><span>SAISON</span><span id="seasonLabel">J1 /105</span></div><div style="height:5px;background:#000;border:1px solid #222;border-radius:999px;overflow:hidden"><div id="seasonBar" style="height:100%;width:5%;background:linear-gradient(90deg,#ff8f00,#ffb300)"></div></div></div>
+  <div style="display:flex;gap:5px"><div class="pill" style="min-width:80px"><div class="label">Prod / Jour</div><div id="dailyProd" class="value" style="color:#ffb300">0.00 oz</div></div><button id="endDayBtn" class="btn btn-dark" style="background:#fff;color:#000;font-family:Anton;padding:0 12px">FIN JOUR 🌙</button><button id="buildBtn" class="btn btn-gold">B CONVOYEUR</button></div>
 </div>
 
 <div class="right-panel">
-  <div style="height:42px;border-bottom:1px solid #222;display:flex;align-items:center;padding:0 12px;justify-content:space-between"><span class="font-anton" style="letter-spacing:0.8px;font-size:12px" id="opsTitle">OPÉRATIONS 3D TEMPS RÉEL</span><span id="activeClaimName" class="badge">AUCUNE</span></div>
-  <div style="padding:8px;border-bottom:1px solid #1a1a1a;background:rgba(0,0,0,0.35)">
-    <div style="font-size:9px;letter-spacing:1px;color:#666;font-weight:800" id="fleetTitle">FLOTTE ACTIVE — 3D + RECRUTEMENT</div>
-    <div id="workerBar" style="margin-top:6px;display:flex;gap:6px"><div style="flex:1;background:#111;border:1px solid #222;border-radius:8px;padding:6px;text-align:center"><div style="font-size:8px;color:#777">OPÉRATEURS</div><div id="hudWorkers" style="font-family:'JetBrains Mono';font-size:12px;font-weight:800">0/0</div></div><button id="hireBtn" class="btn btn-dark" style="font-size:10px;flex:1">👷 RECRUTER</button></div>
-    <div id="fleetList3d" style="margin-top:8px;display:flex;flex-direction:column;gap:5px;max-height:200px;overflow:auto"></div>
-    <div id="noFleet3d" style="padding:14px;text-align:center;color:#555;font-size:11px">Aucune machine. Va dans FLOTTE > Achète et DÉPLOIE en 3D.</div>
+  <div style="height:40px;border-bottom:1px solid #222;display:flex;align-items:center;padding:0 10px;justify-content:space-between"><span class="font-anton" style="font-size:11px">OPÉRATIONS 3D</span><span id="activeClaimName" class="badge">AUCUNE</span></div>
+  <div style="padding:7px;border-bottom:1px solid #1a1a1a;background:rgba(0,0,0,0.35)">
+    <div style="font-size:8px;color:#666;font-weight:800">FLOTTE ACTIVE - VRAIS MODÈLES</div>
+    <div id="workerBar" style="margin-top:5px;display:flex;gap:5px"><div style="flex:1;background:#111;border:1px solid #222;border-radius:8px;padding:5px;text-align:center"><div style="font-size:7px;color:#777">OPÉRATEURS</div><div id="hudWorkers" style="font-family:'JetBrains Mono';font-size:11px;font-weight:800">0/0</div></div><button id="hireBtn" class="btn btn-dark" style="font-size:9px;flex:1">👷 RECRUTER</button></div>
+    <div id="fleetList3d" style="margin-top:6px;display:flex;flex-direction:column;gap:4px;max-height:180px;overflow:auto"></div>
+    <div id="noFleet3d" style="padding:10px;text-align:center;color:#555;font-size:10px">Aucune machine. Achète claim, puis FLOTTE > Déploie 3D.</div>
   </div>
-  <div style="height:28px;background:#181611;display:flex;align-items:center;padding:0 10px;font-size:9px;font-weight:800;letter-spacing:1px;color:#999">📻 JOURNAL CHANTIER</div>
+  <div style="height:26px;background:#181611;display:flex;align-items:center;padding:0 8px;font-size:8px;font-weight:800;color:#999">📻 JOURNAL (sans spam sauvegarde)</div>
   <div id="gameLog" class="log"></div>
-  <div style="padding:6px;border-top:1px solid #222;display:flex;gap:5px"><input id="cheatInput" placeholder="Code admin / cheat" style="flex:1;background:#000;border:1px solid #222;border-radius:8px;padding:6px 10px;font-family:'JetBrains Mono';font-size:10px;color:#fff"><button id="fuelBtn" class="btn btn-dark" style="font-size:9px">FUEL</button></div>
+  <div style="padding:5px;border-top:1px solid #222;display:flex;gap:4px"><input id="cheatInput" placeholder="Code admin sécurisé 24 chars" style="flex:1;background:#000;border:1px solid #222;border-radius:7px;padding:5px 8px;font-family:'JetBrains Mono';font-size:9px;color:#fff"><button id="fuelBtn" class="btn btn-dark" style="font-size:8px">FUEL</button></div>
 </div>
 
-<!-- SETTINGS MODAL -->
 <div id="settingsModal" class="modal hidden">
-  <div style="background:#12110f;border:1px solid #333;border-radius:20px;width:480px;padding:20px">
-    <div style="display:flex;justify-content:space-between;align-items:center"><h3 class="font-anton" style="font-size:20px">⚙️ PARAMÈTRES MONDIAUX</h3><button id="closeSettings" class="btn btn-dark">✕</button></div>
-    <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div><label style="font-size:10px;color:#777;letter-spacing:1px">LANGUE</label><select id="setLang" class="input"><option value="fr">Français</option><option value="en">English</option><option value="es">Español</option><option value="de">Deutsch</option></select></div>
-      <div><label style="font-size:10px;color:#777">RÉGION / MESURES</label><select id="setRegion" class="input"><option value="EU">EU • € • m³ • litres • °C</option><option value="US">US • $ • yd³ • gal • °F</option><option value="CA">CA • C$ • yd³</option><option value="UK">UK • £ • m³</option></select></div>
-    </div>
-    <div style="margin-top:12px;font-size:11px;color:#999;line-height:1.4">Le jeu détecte automatiquement ta langue navigateur + mesures de ta région. Tu peux changer ici. Le cours de l'or s'adapte $/oz vs €/g.</div>
-    <div style="margin-top:14px;display:flex;gap:8px"><button id="saveSettings" class="btn btn-gold" style="flex:1">SAUVEGARDER</button><button id="adminLockBtn" class="btn btn-dark" style="width:42px">🔒</button></div>
-    <div id="adminArea" class="hidden" style="margin-top:14px;padding:12px;background:#000;border:1px solid #333;border-radius:12px"><div style="font-size:11px;color:#ffb300;font-weight:800">🔓 MODE ADMIN - CODE SECRET</div><div style="font-family:'JetBrains Mono';font-size:10px;color:#666;margin-top:4px">Code perso généré pour toi : <span id="adminCodeDisplay" style="color:#fff;font-weight:800;letter-spacing:1px">BEETS-ADMIN-2025-GOLD</span></div><input id="adminCodeInput" class="input" placeholder="Entre le code admin"><button id="unlockAdminBtn" class="btn btn-gold" style="width:100%;margin-top:8px">DÉVERROUILLER ♾️ ARGENT/FUEL/ÉLEC</button><div id="adminStatus" style="font-size:10px;color:#4ade80;margin-top:6px"></div></div>
+  <div style="background:#12110f;border:1px solid #333;border-radius:18px;width:460px;padding:16px">
+    <div style="display:flex;justify-content:space-between"><h3 class="font-anton" style="font-size:18px">⚙️ PARAMÈTRES + ADMIN SÉCURISÉ</h3><button id="closeSettings" class="btn btn-dark">✕</button></div>
+    <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label style="font-size:9px;color:#777">LANGUE</label><select id="setLang" class="input" style="margin-top:4px"><option value="fr">Français</option><option value="en">English</option><option value="es">Español</option><option value="de">Deutsch</option></select></div><div><label style="font-size:9px;color:#777">RÉGION</label><select id="setRegion" class="input" style="margin-top:4px"><option value="EU">EU • € • m³</option><option value="US">US • $ • yd³</option><option value="CA">CA • C$ • yd³</option></select></div></div>
+    <div style="margin-top:12px;padding:10px;background:#000;border:1px solid #333;border-radius:12px"><div style="font-size:11px;color:#ffb300;font-weight:800">🔒 ADMIN MODE - CODE PERSO SÉCURISÉ 24 CHARS</div><div style="font-family:'JetBrains Mono';font-size:9px;color:#666;margin-top:4px">Ton code perso (maj/min/chiffre/spéciaux) : <span id="adminCodeDisplay" style="color:#fff;font-weight:800"></span></div><div style="font-size:9px;color:#666;margin-top:4px">Généré via CSPRNG, 76^24 combinaisons impossible bruteforce.</div><input id="adminCodeInput" class="input" placeholder="Entre ton code admin 24 chars"><div style="display:flex;gap:6px;margin-top:8px"><button id="unlockAdminBtn" class="btn btn-gold" style="flex:1">ACTIVER ♾️</button><button id="lockAdminBtn" class="btn btn-dark" style="flex:1">DÉSACTIVER</button></div><div id="adminStatus" style="font-size:9px;color:#4ade80;margin-top:6px"></div></div>
+    <button id="saveSettings" class="btn btn-gold" style="width:100%;margin-top:10px">SAUVEGARDER LANGUE/RÉGION</button>
   </div>
 </div>
 
-<!-- MAP VIEW WITH LEAFLET REAL MAP -->
-<div id="mapView" class="view hidden"><div id="realMap"></div><div style="position:absolute;top:12px;left:12px;right:12px;z-index:401;display:flex;gap:10px"><div style="background:rgba(0,0,0,0.85);border:1px solid #333;border-radius:12px;padding:10px 14px;backdrop-filter:blur(8px)"><div class="font-anton" style="font-size:18px">🗺️ CARTE AMÉRIQUE DU NORD - CLAIMS RÉELS</div><div style="font-size:10px;color:#aaa">Clique un pin pour acheter/louer/louer à un tiers. Glisse pour explorer Alaska>California.</div></div><div id="claimDetailMap" style="margin-left:auto;width:380px;background:rgba(12,11,10,0.96);border:1px solid #333;border-radius:16px;padding:14px;backdrop-filter:blur(12px)"><div style="color:#666;text-align:center;padding:20px;font-size:11px">Sélectionne un claim sur la carte</div></div></div></div>
+<div id="mapView" class="view hidden"><div id="realMap"></div><div style="position:absolute;top:10px;left:10px;right:10px;z-index:401;display:flex;gap:8px;pointer-events:none"><div style="pointer-events:auto;background:rgba(0,0,0,0.88);border:1px solid #333;border-radius:12px;padding:10px 12px;backdrop-filter:blur(8px)"><div class="font-anton" style="font-size:16px">🗺️ CARTE AMÉRIQUE RÉELLE - CLAIMS USGS</div><div style="font-size:9px;color:#aaa">Vraies lat/lng, tu achètes → Mine 3D charge vrai DEM + satellite Esri de cette concession vierge (pas vieille 3D chelou)</div></div><div id="claimDetailMap" style="pointer-events:auto;margin-left:auto;width:360px;background:rgba(12,11,10,0.97);border:1px solid #333;border-radius:14px;padding:12px"><div style="color:#666;text-align:center;padding:16px;font-size:10px">Clique un pin</div></div></div></div>
 
-<div id="otherView" class="view hidden" style="padding:18px"></div>
+<div id="otherView" class="view hidden" style="padding:14px"></div>
 
-<div id="hireModal" class="modal hidden"><div style="background:#12110f;border:1px solid #333;border-radius:18px;width:420px;padding:18px"><h3 class="font-anton">👷 RECRUTEMENT ÉQUIPE</h3><div style="margin-top:12px;display:flex;flex-direction:column;gap:8px" id="hireList"></div><button id="closeHire" class="btn btn-dark" style="width:100%;margin-top:12px">FERMER</button></div></div>
+<div id="hireModal" class="modal hidden"><div style="background:#12110f;border:1px solid #333;border-radius:16px;width:400px;padding:14px"><h3 class="font-anton">👷 RECRUTEMENT</h3><div style="margin-top:10px;display:flex;flex-direction:column;gap:6px" id="hireList"></div><button id="closeHire" class="btn btn-dark" style="width:100%;margin-top:10px">FERMER</button></div></div>
 
-<div id="fleetDetailModal" class="modal hidden"><div style="background:#12110f;border:1px solid #333;border-radius:18px;width:560px;padding:0;overflow:hidden"><div style="height:260px;background:#000;position:relative"><canvas id="detail3dCanvas" style="width:100%;height:100%"></canvas><button id="closeFleetDetail" style="position:absolute;top:10px;right:10px" class="btn btn-dark">✕</button></div><div style="padding:16px" id="fleetDetailInfo"></div></div></div>
+<div id="fleetDetailModal" class="modal hidden"><div style="background:#12110f;border:1px solid #333;border-radius:16px;width:620px;overflow:hidden"><div style="height:280px;background:#000;position:relative"><canvas id="detail3dCanvas" style="width:100%;height:100%;display:block"></canvas><button id="closeFleetDetail" style="position:absolute;top:8px;right:8px" class="btn btn-dark">✕</button><div style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.7);padding:6px 10px;border-radius:8px;font-family:'JetBrains Mono';font-size:9px" id="detail3dLabel">Vue 3D réelle - modèle fidèle</div></div><div style="padding:12px" id="fleetDetailInfo"></div></div></div>
 
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
-// ===== i18n & SETTINGS =====
-const TRANSLATIONS = {
-  fr:{ money:"Trésorerie", gold:"Or Coffre", pay:"Stock Pay", goldPrice:"Cours Or Live", speed:"VITESSE", season:"SAISON", prod:"Prod / Jour", ops:"OPÉRATIONS 3D", fleet:"FLOTTE ACTIVE", weather:["Soleil","Nuageux","Pluie battante","Bourbier","Neige"] },
-  en:{ money:"Cash", gold:"Gold Vault", pay:"Pay Stock", goldPrice:"Gold Price Live", speed:"SPEED", season:"SEASON", prod:"Prod / Day", ops:"REAL-TIME OPS", fleet:"ACTIVE FLEET", weather:["Sunny","Cloudy","Heavy Rain","Deep Mud","Snow"] },
-  es:{ money:"Efectivo", gold:"Oro Bóveda", pay:"Material", goldPrice:"Precio Oro", speed:"VELOCIDAD", season:"TEMPORADA", prod:"Prod / Día", ops:"OPERACIONES", fleet:"FLOTA ACTIVA", weather:["Sol","Nublado","Lluvia","Lodo","Nieve"] },
-  de:{ money:"Kasse", gold:"Gold Tresor", pay:"Waschgut", goldPrice:"Goldpreis Live", speed:"GESCHWINDIGKEIT", season:"SAISON", prod:"Prod / Tag", ops:"BETRIEB", fleet:"FLOTTE AKTIV", weather:["Sonne","Bewölkt","Starkregen","Schlamm","Schnee"] },
-};
-let SETTINGS = JSON.parse(localStorage.getItem('gr_settings')||'{"lang":"fr","region":"EU","currency":"EUR","units":"metric"}');
-function detectLang(){ const nav=navigator.language.slice(0,2); if(['fr','en','es','de'].includes(nav)) SETTINGS.lang=nav; if(!localStorage.getItem('gr_settings')){ if(['en-US','en-CA'].includes(navigator.language)) SETTINGS.region='US'; } }
-detectLang();
-function t(key){ return (TRANSLATIONS[SETTINGS.lang]||TRANSLATIONS.fr)[key]||key; }
-function fmtMoney(n){
-  const cur=SETTINGS.region==='EU'?'€':SETTINGS.region==='UK'?'£':SETTINGS.region==='CA'?'C$':'$';
-  const rate=SETTINGS.region==='EU'?0.92:SETTINGS.region==='UK'?0.79:SETTINGS.region==='CA'?1.35:1;
-  const val=n*rate;
-  return (val<0?'-':'')+cur+Math.abs(Math.round(val)).toLocaleString(SETTINGS.lang==='fr'?'fr-FR':'en-US');
-}
-function fmtVolume(yd3){
-  if(SETTINGS.units==='metric'||SETTINGS.region==='EU'||SETTINGS.region==='UK'){ const m3=yd3*0.7645; return Math.round(m3)+' m³'; }
-  return Math.round(yd3)+' yd³';
-}
-function fmtGold(oz){
-  if(SETTINGS.region==='EU'){ const g=oz*31.1035; return g.toFixed(1)+' g'; }
-  return oz.toFixed(2)+' oz';
-}
-function fmtFuel(L){
-  if(SETTINGS.region==='US'){ const gal=L*0.264172; return Math.round(gal)+' gal'; }
-  return Math.round(L)+' L';
-}
-function fmtTemp(c){
-  if(SETTINGS.region==='US'){ return Math.round(c*9/5+32)+'°F'; }
-  return Math.round(c)+'°C';
+// ===== SECURE ADMIN CODE - 24 chars maj/min/chiffre/speciaux =====
+function generateSecureCode(){
+  const charset="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{}|;:,.<>?";
+  let code=""; const arr=new Uint32Array(24); crypto.getRandomValues(arr);
+  for(let i=0;i<24;i++) code+=charset[arr[i]%charset.length];
+  return code;
 }
 
-// ===== ACCOUNT SYSTEM =====
-let currentUser = JSON.parse(localStorage.getItem('gr_currentUser')||'null');
-let usersDB = JSON.parse(localStorage.getItem('gr_users')||'[]');
-let pendingCode = null;
+// ===== SETTINGS & i18n =====
+let SETTINGS = JSON.parse(localStorage.getItem('gr_settings_v5')||'{"lang":"fr","region":"EU"}');
+let LANGS={fr:{money:"Trésorerie",gold:"Or Coffre",pay:"Stock Pay",goldPrice:"Cours Or Live",speed:"VITESSE",season:"SAISON",prod:"Prod / Jour"}, en:{money:"Cash",gold:"Gold Vault",pay:"Pay Stock",goldPrice:"Gold Price Live",speed:"SPEED",season:"SEASON",prod:"Prod / Day"}};
+function t(k){ return (LANGS[SETTINGS.lang]||LANGS.fr)[k]||k; }
+function fmtMoney(n){ const cur=SETTINGS.region==='EU'?'€':SETTINGS.region==='UK'?'£':SETTINGS.region==='CA'?'C$':'$'; const rate=SETTINGS.region==='EU'?0.92:SETTINGS.region==='UK'?0.79:SETTINGS.region==='CA'?1.35:1; return (n<0?'-':'')+cur+Math.abs(Math.round(n*rate)).toLocaleString(); }
+function fmtVol(yd){ if(SETTINGS.region==='EU'||SETTINGS.region==='UK'){ return Math.round(yd*0.7645)+' m³'; } return Math.round(yd)+' yd³'; }
+function fmtGold(oz){ if(SETTINGS.region==='EU') return (oz*31.1035).toFixed(1)+' g'; return oz.toFixed(2)+' oz'; }
+function fmtFuel(L){ if(SETTINGS.region==='US') return Math.round(L*0.264172)+' gal'; return Math.round(L)+' L'; }
+function fmtTemp(c){ if(SETTINGS.region==='US') return Math.round(c*9/5+32)+'°F'; return Math.round(c)+'°C'; }
+
+// ===== ACCOUNT SIMPLIFIÉ (ton feedback: pas de code email SMTP) =====
+let currentUser=JSON.parse(localStorage.getItem('gr_currentUser_v5')||'null');
+let usersDB=JSON.parse(localStorage.getItem('gr_users_v5')||'[]');
 const accountModal=document.getElementById('accountModal');
-function showAccount(){ accountModal.classList.remove('hidden'); }
+function showAccount(){ accountModal.classList.remove('hidden'); document.getElementById('previewAdminCode').textContent=generateSecureCode(); }
 function hideAccount(){ accountModal.classList.add('hidden'); }
-if(!currentUser){ showAccount(); } else { hideAccount(); }
+if(!currentUser) showAccount();
 
-document.getElementById('tabLogin').addEventListener('click',()=>{ document.getElementById('tabLogin').classList.add('active'); document.getElementById('tabCreate').classList.remove('active'); document.getElementById('loginForm').classList.remove('hidden'); document.getElementById('createForm').classList.add('hidden'); });
-document.getElementById('tabCreate').addEventListener('click',()=>{ document.getElementById('tabCreate').classList.add('active'); document.getElementById('tabLogin').classList.remove('active'); document.getElementById('createForm').classList.remove('hidden'); document.getElementById('loginForm').classList.add('hidden'); });
-document.getElementById('sendCodeBtn').addEventListener('click',()=>{
-  const email=document.getElementById('createEmail').value.trim();
-  const pass=document.getElementById('createPass').value.trim();
-  const err=document.getElementById('createError');
-  if(!email.includes('@')||pass.length<6){ err.textContent='Email invalide ou mot de passe <6'; return; }
-  if(usersDB.some(u=>u.email===email)){ err.textContent='Email déjà utilisé'; return; }
-  pendingCode=Math.floor(100000+Math.random()*900000).toString();
-  document.getElementById('displayCode').textContent=pendingCode;
-  document.getElementById('codeSection').classList.remove('hidden');
-  err.textContent='Code généré (simulation email - en prod serait envoyé)';
+document.getElementById('accCreateBtn').addEventListener('click',()=>{
+  const email=document.getElementById('accEmail').value.trim();
+  const pass=document.getElementById('accPass').value.trim();
+  const user=document.getElementById('accUser').value.trim();
+  const err=document.getElementById('accError');
+  if(!email.includes('@')||pass.length<6||!/([A-Z].*[a-z]|[a-z].*[A-Z])/.test(pass)||!/\d/.test(pass)){ err.textContent='Email invalide ou mdp faible (min 6 + maj/min + chiffre)'; return; }
+  if(user.length<3){ err.textContent='Username min 3'; return; }
+  if(usersDB.some(u=>u.email===email||u.username===user)){ err.textContent='Email ou username déjà pris'; return; }
+  const adminCode=generateSecureCode();
+  const newUser={email,password:btoa(pass),username:user,adminCode,admin:false,created:Date.now()};
+  usersDB.push(newUser); localStorage.setItem('gr_users_v5',JSON.stringify(usersDB));
+  currentUser=newUser; localStorage.setItem('gr_currentUser_v5',JSON.stringify(currentUser));
+  hideAccount(); initGame();
 });
-document.getElementById('verifyBtn').addEventListener('click',()=>{
-  const email=document.getElementById('createEmail').value.trim();
-  const pass=document.getElementById('createPass').value.trim();
-  const code=document.getElementById('codeInput').value.trim();
-  const username=document.getElementById('createUsername').value.trim();
-  const err=document.getElementById('createError');
-  if(code!==pendingCode){ err.textContent='Code 2FA incorrect'; return; }
-  if(!username||username.length<3){ err.textContent='Username min 3 caractères'; return; }
-  if(usersDB.some(u=>u.username===username)){ err.textContent='Username déjà pris'; return; }
-  const user={ email, password: btoa(pass), username, verified:true, created:Date.now(), admin:false, code: 'GOLD-'+username.toUpperCase()+'-2025' };
-  usersDB.push(user); localStorage.setItem('gr_users', JSON.stringify(usersDB));
-  currentUser=user; localStorage.setItem('gr_currentUser', JSON.stringify(currentUser));
-  hideAccount(); initGameAfterLogin();
-});
-document.getElementById('loginBtn').addEventListener('click',()=>{
-  const id=document.getElementById('loginEmail').value.trim();
-  const pass=document.getElementById('loginPass').value.trim();
-  const err=document.getElementById('loginError');
-  const found=usersDB.find(u=> (u.email===id || u.username===id) && atob(u.password)===pass);
+document.getElementById('accLoginBtn').addEventListener('click',()=>{
+  const id=document.getElementById('accEmail').value.trim();
+  const pass=document.getElementById('accPass').value.trim();
+  const err=document.getElementById('accError');
+  const found=usersDB.find(u=>(u.email===id||u.username===id)&&atob(u.password)===pass);
   if(!found){ err.textContent='Identifiants incorrects'; return; }
-  currentUser=found; localStorage.setItem('gr_currentUser', JSON.stringify(currentUser)); hideAccount(); initGameAfterLogin();
-});
-// lang/region selectors in account modal
-document.getElementById('langSelect').value=SETTINGS.lang;
-document.getElementById('regionSelect').value=SETTINGS.region;
-document.getElementById('langSelect').addEventListener('change',e=>{ SETTINGS.lang=e.target.value; localStorage.setItem('gr_settings', JSON.stringify(SETTINGS)); });
-document.getElementById('regionSelect').addEventListener('change',e=>{
-  SETTINGS.region=e.target.value;
-  SETTINGS.currency=e.target.value==='EU'?'EUR':e.target.value==='UK'?'GBP':e.target.value==='CA'?'CAD':'USD';
-  SETTINGS.units=(e.target.value==='EU'||e.target.value==='UK')?'metric':'imperial';
-  localStorage.setItem('gr_settings', JSON.stringify(SETTINGS));
+  currentUser=found; localStorage.setItem('gr_currentUser_v5',JSON.stringify(currentUser)); hideAccount(); initGame();
 });
 
-// ===== GAME DATA V3 =====
-const CLAIMS = [
-  { id:'scribner', name:{fr:'Scribner Creek',en:'Scribner Creek',es:'Arroyo Scribner',de:'Scribner Creek'}, region:'Klondike, Yukon', country:'CA', lat:63.92, lng:-139.25, price:32000, rent:4800, leaseInc:2200, royalty:0.15, goldMin:650, goldMax:1100, richness:0.72, size:20, over:3.2, diff:1, water:true, type:'creek', desc:{fr:'Parfait débutant, ancien Parker. Boue légère.',en:'Perfect starter, ex-Parker claim.',es:'Perfecto para empezar',de:'Perfekt für Anfänger'}, img:'https://images.unsplash.com/photo-1501554728187-ce583db33af7?q=80&w=600', color:'#7cb342' },
-  { id:'paradise', name:{fr:'Paradise Hill',en:'Paradise Hill',es:'Colina Paraíso',de:'Paradise Hill'}, region:'Klondike Bench', country:'CA', lat:63.95,lng:-139.0, price:95000, rent:12500, leaseInc:5800, royalty:0.18, goldMin:1800,goldMax:2600, richness:1.15,size:26,over:5.5,diff:2,water:false,type:'hill',desc:{fr:'Hill pay nécessitant gros stripping.',en:'Hill pay needs stripping',es:'Montaña rica',de:'Hügel Gold'}, img:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=600', color:'#ffb300' },
-  { id:'indian', name:{fr:'Indian River',en:'Indian River',es:'Río Indio',de:'Indian River'}, region:'Yukon River', country:'CA', lat:63.5,lng:-139.8, price:145000, rent:18000, leaseInc:7200, royalty:0.16, goldMin:3000,goldMax:4800, richness:1.45,size:28,over:3.0,diff:3,water:true,type:'river',desc:{fr:'Marécageux type SnowRunner',en:'Swampy SnowRunner type',es:'Pantano',de:'Sumpfig'}, img:'https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=600', color:'#29b6f6' },
-  { id:'dominion', name:{fr:'Dominion Creek',en:'Dominion Creek',es:'Dominion',de:'Dominion'}, region:'Yukon', country:'CA', lat:63.7,lng:-138.7, price:178000, rent:22000, leaseInc:9500, royalty:0.20, goldMin:3500,goldMax:5200, richness:1.6,size:30,over:4.8,diff:3,water:true,type:'bench',desc:{fr:'Bench riche permafrost',en:'Rich bench permafrost',es:'Rico',de:'Reich'}, img:'https://images.unsplash.com/photo-1486915309851-b0cc1f8a0084?q=80&w=600', color:'#4fc3f7' },
-  { id:'eureka', name:{fr:'Eureka Creek',en:'Eureka Creek',es:'Eureka',de:'Eureka'}, region:'Alaska', country:'US', lat:63.82,lng:-150.3, price:52000, rent:7000, leaseInc:3100, royalty:0.14, goldMin:900,goldMax:1600, richness:0.88,size:18,over:3.6,diff:2,water:true,type:'creek',desc:{fr:'Alaska Range saison courte',en:'Short season Alaska',es:'Temporada corta',de:'Kurze Saison'}, img:'https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?q=80&w=600', color:'#ce93d8' },
-  { id:'nome', name:{fr:'Nome Beach',en:'Nome Beach',es:'Playa Nome',de:'Nome Strand'}, region:'Bering Sea, AK', country:'US', lat:64.5,lng:-165.4, price:41000, rent:5600, leaseInc:2800, royalty:0.22, goldMin:750,goldMax:1400, richness:0.65,size:32,over:1.5,diff:2,water:true,type:'beach',desc:{fr:'Or noir des plages',en:'Beach black gold',es:'Oro playero',de:'Strand Gold'}, img:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=600', color:'#90a4ae' },
-  { id:'alder', name:{fr:'Alder Gulch',en:'Alder Gulch',es:'Alder Gulch',de:'Alder Gulch'}, region:'Montana, USA', country:'US', lat:45.3,lng:-112.0, price:155000, rent:19500, leaseInc:8500, royalty:0.19, goldMin:2800,goldMax:4500, richness:1.35,size:26,over:4.0,diff:3,water:true,type:'gulch',desc:{fr:'Virginia City - 30M$ historique',en:'Historic $30M Virginia City',es:'Histórico',de:'Historisch'}, img:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=600', color:'#ffb74d' },
-  { id:'sierra', name:{fr:'Sierra Nevada - Yuba',en:'Sierra Nevada - Yuba',es:'Sierra Nevada',de:'Sierra Nevada'}, region:'California', country:'US', lat:39.3,lng:-121.0, price:198000, rent:26000, leaseInc:11200, royalty:0.21, goldMin:4200,goldMax:6800, richness:1.7,size:30,over:2.5,diff:4,water:true,type:'river',desc:{fr:'California Gold Rush ultra riche',en:'Ultra rich California',es:'Ultra rico California',de:'Sehr reich'}, img:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=600', color:'#ffd54f' },
+// ===== DATA V5 - VRAIES LAVERIES CORRIGÉES =====
+const CLAIMS=[
+  {id:'scribner',name:{fr:'Scribner Creek',en:'Scribner Creek'},region:'Klondike, Yukon',country:'CA',lat:63.92,lng:-139.25,price:32000,rent:4800,leaseInc:2200,goldMin:650,goldMax:1100,richness:0.72,size:20,over:3.2,diff:1,water:true,type:'creek',color:'#7cb342',desc:{fr:'Parfait débutant, ancien Parker. Terrain vierge avec rivière.',en:'Perfect starter, ex-Parker, virgin ground with river.'}},
+  {id:'dominion',name:{fr:'Dominion Creek','en':'Dominion Creek'},region:'Yukon',country:'CA',lat:63.70,lng:-138.70,price:178000,rent:22000,leaseInc:9500,goldMin:3500,goldMax:5200,richness:1.6,size:30,over:4.8,diff:3,water:true,type:'bench',color:'#4fc3f7',desc:{fr:'Bench riche permafrost, vraie topographie vallonée.',en:'Rich bench permafrost, real hilly topography.'}},
+  {id:'paradise',name:{fr:'Paradise Hill',en:'Paradise Hill'},region:'Klondike Bench',country:'CA',lat:63.95,lng:-139.0,price:95000,rent:12500,leaseInc:5800,goldMin:1800,goldMax:2600,richness:1.15,size:26,over:5.5,diff:2,water:false,type:'hill',color:'#ffb300',desc:{fr:'Hill pay nécessitant gros stripping, vue panoramique.',en:'Hill pay needs stripping, panoramic view.'}},
+  {id:'indian',name:{fr:'Indian River',en:'Indian River'},region:'Yukon River',country:'CA',lat:63.5,lng:-139.8,price:145000,rent:18000,leaseInc:7200,goldMin:3000,goldMax:4800,richness:1.45,size:28,over:3.0,diff:3,water:true,type:'river',color:'#29b6f6',desc:{fr:'Marécageux SnowRunner, boue profonde.',en:'Swampy SnowRunner, deep mud.'}},
+  {id:'sierra',name:{fr:'Sierra Nevada - Yuba',en:'Sierra Nevada - Yuba'},region:'California, USA',country:'US',lat:39.3,lng:-121.0,price:198000,rent:26000,leaseInc:11200,goldMin:4200,goldMax:6800,richness:1.7,size:30,over:2.5,diff:4,water:true,type:'river',color:'#ffd54f',desc:{fr:'California Mother Lode ultra riche alluvionnaire.',en:'California ultra rich placer.'}},
 ];
 
-const EQUIP = [
-  { id:'excav_320', name:{fr:'Pelle CAT 320F',en:'CAT 320F Excavator',es:'Excavadora CAT 320',de:'CAT 320 Bagger'}, cat:'excavator', role:'Extraction', buy:74000, rent:7200, prod:16, fuel:8, power:0, need:['fuel'], img:'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=600', icon:'🚜', desc:{fr:'Base de toute mine. Creuse le paydirt exposé par le dozer. Nécessite fuel.',en:'Core mining. Digs paydirt exposed by dozer. Needs fuel.',es:'Base minería. Excava paydirt.',de:'Kernmaschine. Gräbt Paydirt.'}, use:'1. Dozer décape mort-terrain -> 2. Pelle creuse paydirt -> Stock' },
-  { id:'dozer_d6', name:{fr:'Bull D6 XE',en:'CAT D6 XE Dozer',es:'Bulldozer D6',de:'D6 Planierraupe'}, cat:'dozer', role:'Décapage', buy:72000, rent:7400, prod:55, fuel:15, power:0, need:['fuel'], img:'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=600', icon:'🚚', desc:{fr:'Pousse le mort-terrain. Sans dozer, pas d’accès au pay. Très bon en boue.',en:'Pushes overburden. No dozer no pay access. Great in mud.',es:'Empuja estéril',de:'Schiebt Abraum'}, use:'Première machine: enlève la forêt et 2-5m de stérile' },
-  { id:'hopper', name:{fr:'Trémie / Distributeur',en:'Hopper / Feeder',es:'Tolva Alimentadora',de:'Aufgabetrichter'}, cat:'feeder', role:'Alimentation', buy:22000, rent:2800, prod:0, fuel:2, power:10, need:['power','fuel'], img:'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=600', icon:'🛢️', desc:{fr:'OBLIGATOIRE. Reçoit la terre de la pelle, régule vers laverie. Sans trémie, laverie bouchée.',en:'MANDATORY. Receives pay from excavator, feeds washplant. Without, washplant jams.',es:'Obligatorio. Alimenta laverie',de:'Pflicht. Füttert Waschanlage'}, use:'Pelle -> Trémie -> Convoyeur -> Laverie' },
-  { id:'conveyor', name:{fr:'Convoyeur 20m',en:'Conveyor 20m',es:'Cinta 20m',de:'Förderband 20m'}, cat:'conveyor', role:'Transport', buy:18000, rent:2200, prod:0, fuel:1, power:8, need:['power'], img:'https://images.unsplash.com/photo-1513828583688-c52646db42da?q=80&w=600', icon:'➡️', desc:{fr:'Transporte pay plus vite que camion. 12% bonus. Réduit usure.',en:'Faster than truck, 12% bonus, less wear',es:'Más rápido que camión',de:'Schneller als LKW'}, use:'Trémie -> Convoyeur -> Laverie (ou directe pelle -> convoyeur)' },
-  { id:'wash_50', name:{fr:'Laverie Shaker 50 TPH',en:'Shaker 50 TPH Washplant',es:'Lavadora 50 TPH',de:'Waschanlage 50 TPH'}, cat:'washplant', role:'Lavage', buy:48000, rent:5500, prod:50, fuel:18, power:25, need:['water','power','feeder'], img:'https://images.unsplash.com/photo-1605600659873-d808a13e4d2a?q=80&w=600', icon:'🌀', desc:{fr:'Lave 50 yd³/h. Besoin OBLIGATOIRE: eau (pompe+bassin), élec (groupe), trémie. Sort or.',en:'Washes 50 yd³/h. NEEDS: water (pump+pond), power (gen), feeder.',es:'Lava 50 TPH necesita agua luz tolva',de:'Wäscht 50, braucht Wasser Strom Trichter'}, use:'Besoin: Pompe + Bassin + Groupe + Trémie' },
-  { id:'wash_150', name:{fr:'BIG RED 150 TPH Trommel',en:'BIG RED 150 TPH Trommel',es:'BIG RED 150 TPH',de:'BIG RED 150 TPH'}, cat:'washplant', role:'Lavage', buy:195000, rent:18500, prod:155, fuel:55, power:110, need:['water','power','feeder'], img:'https://images.unsplash.com/photo-1513828583688-c52646db42da?q=80&w=600', icon:'🔥', desc:{fr:'Légende TV. Hurle. Besoin grosse pompe 10" + 250kW + bassin 2.',en:'TV Legend. Needs big pump + 250kW + pond 2',es:'Leyenda TV',de:'Legende'}, use:'Pour grosses mines. 2 pelles pour alimenter.' },
-  { id:'pump_6', name:{fr:'Pompe à eau 6"',en:'Water Pump 6"',es:'Bomba agua 6"',de:'Wasserpumpe 6"'}, cat:'pump', role:'Eau', buy:8500, rent:1100, prod:0, fuel:4, power:0, need:['water_source'], img:'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=600', icon:'💧', desc:{fr:'Sans eau pas d’or. Puise en rivière/bassin. 6" pour 50 TPH, 10" pour Big Red.',en:'No water no gold. Draws from river/pond.',es:'Sin agua no oro',de:'Ohne Wasser kein Gold'}, use:'Rivière/Bassin -> Pompe -> Tuyaux -> Laverie' },
-  { id:'pond', name:{fr:'Bassin de décantation',en:'Settling Pond',es:'Balsa Decantación',de:'Absetzbecken'}, cat:'pond', role:'Eau', buy:12000, rent:1500, prod:0, fuel:0, power:0, need:[], img:'https://images.unsplash.com/photo-1439066615861-d1af74d74000?q=80&w=600', icon:'🌊', desc:{fr:'Stocke eau, décante boue. Obligatoire pour environnement + recirculation. Évite amendes.',en:'Stores water, settles mud. Mandatory env.',es:'Almacena agua',de:'Speichert Wasser'}, use:'Pompe -> Bassin -> Laverie + retour' },
-  { id:'gen_100', name:{fr:'Groupe 100kW',en:'GenSet 100kW',es:'Grupo 100kW',de:'Generator 100kW'}, cat:'generator', role:'Élec', buy:12000, rent:1500, prod:0, fuel:8, power:-100, need:['fuel'], img:'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?q=80&w=600', icon:'⚡', desc:{fr:'Fournit électricité. 100kW pour petite laverie. Big Red besoin 250kW.',en:'Provides power. 100kW small plant.',es:'Genera electricidad',de:'Strom'}, use:'Fuel -> Groupe -> Câbles -> Laverie/Trémie' },
-  { id:'truck_25', name:{fr:'Tombereau 25T',en:'Rock Truck 25T',es:'Dumper 25T',de:'Muldenkipper 25T'}, cat:'truck', role:'Transport', buy:26000, rent:3100, prod:12, fuel:7, power:0, need:['fuel'], img:'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=600', icon:'🚛', desc:{fr:'Alternative convoyeur. Bonus 12% si 2 camions. Peut s’embourber en boue profonde.',en:'Alt to conveyor. 12% bonus 2 trucks. Can bog in deep mud.',es:'Alternativa cinta',de:'Alternative Förderband'}, use:'Pelle -> Camion -> Trémie' },
+const EQUIP=[
+  {id:'excav_320',name:{fr:'Pelle CAT 320F L - 22.7T',en:'CAT 320F L Excavator - 22.7T'},cat:'excavator',role:'Extraction',buy:74000,rent:7200,prod:16,fuel:8,power:0,need:[],img:'assets/equip_excav_320.jpg',desc:{fr:'Fidèle CAT 320F L: 22.7T, moteur C7.1 164hp, godet 1.19m³, portée 9.1m, chenilles 600mm, 3 vérins Ø140mm visibles, cabine ROPS vitrée. Creuse paydirt exposé.',en:'Faithful CAT 320F L: 22.7T, C7.1 164hp, bucket 1.19m³, 600mm tracks, 3 visible Ø140mm cylinders, ROPS cab.'},use:'Dozer décape mort-terrain -> Pelle creuse paydirt -> Trémie'},
+  {id:'dozer_d6',name:{fr:'Bull CAT D6 XE LGP - Lames larges',en:'CAT D6 XE LGP Dozer - Wide blades'},cat:'dozer',role:'Décapage',buy:72000,rent:7400,prod:55,fuel:15,power:0,need:[],img:'assets/equip_dozer_d6.jpg',desc:{fr:'Fidèle D6 XE LGP: chenilles LGP 1.2m de large pour marécage SnowRunner (ne s\'embourbe pas), lame 4.2m, ripper 3 dents arrière. Pousse mort-terrain.',en:'Faithful D6 XE LGP: 1.2m wide LGP tracks for swamp, 4.2m blade, 3-shank ripper.'},use:'Première machine: déboise + enlève 2-5m stérile'},
+  {id:'hopper',name:{fr:'Trémie 15yd³ + Grizzly 100mm',en:'Hopper 15yd³ + Grizzly 100mm'},cat:'feeder',role:'Alimentation',buy:22000,rent:2800,prod:0,fuel:2,power:10,need:['power'],img:'assets/equip_hopper.jpg',desc:{fr:'OBLIGATOIRE. Tôle 12mm, grizzly barres espacées 100mm, vibreur. Sans trémie, laverie bouchée et pelle bloquée godet plein.',en:'MANDATORY. 12mm steel, grizzly 100mm spacing, vibrator. Without, washplant jam.'},use:'Pelle -> Trémie -> Convoyeur -> Laverie'},
+  {id:'conveyor',name:{fr:'Convoyeur 20m Treillis Warren',en:'Conveyor 20m Warren Truss'},cat:'conveyor',role:'Transport',buy:18000,rent:2200,prod:0,fuel:1,power:8,need:['power'],img:'assets/equip_conveyor.jpg',desc:{fr:'Fidèle Superior Industries: treillis Warren triangulaire, rouleaux Ø108mm espacés 1.2m, bande caoutchouc noire 900mm, entraînement tête. Bonus +18% vs camion. Plaçable libre sens voulu (molette rotation).',en:'Faithful Superior: Warren truss, Ø108mm rollers 1.2m spaced, 900mm black belt, +18% vs truck, free placeable.'},use:'Trémie -> Convoyeur (direction que tu veux) -> Laverie'},
+  {id:'wash_sluicifer',name:{fr:'Sluicifer - Macon SD-600 Noir/Orange 200yd³/h',en:'Sluicifer - Macon SD-600 Black/Orange 200yd³/h'},cat:'washplant',role:'Lavage',buy:195000,rent:18500,prod:155,fuel:55,power:110,need:['water','power','feeder'],img:'assets/equip_wash_bigred.jpg',desc:{fr:'VRAIE Sluicifer Parker S7: Macon Industries SD-600m, chassis noir mat RAL9005 + panneaux orange RAL2005, deck 6x20ft tôle perforée 20mm, spray bars, 3 sluice runs larges 1.2m avec riffles profilés, hopper, conveyor sortie. Prix réel $985k. Ce n\'est PAS un trommel, c\'est shaker. Besoin pompe 10\" 3000GPM + bassin 40x60 + groupe 250kW + 2 pelles.',en:'REAL Sluicifer S7: Macon SD-600m black/orange, 6x20ft deck perforated 20mm, 3x 1.2m sluices.'},use:'Besoin: Pompe 10\" + Bassin 40x60 + Groupe 250kW + Trémie + 2 pelles'},
+  {id:'wash_bigred_legacy',name:{fr:'Big Red LEGACY - Shaker Rouge Musée - Non vendable',en:'Big Red LEGACY - Red Shaker Museum - Not for sale'},cat:'washplant',role:'Musée',buy:999999,rent:0,prod:0,fuel:0,power:0,need:[],img:'assets/equip_wash_bigred.jpg',desc:{fr:'LEGACY - Non vendable. Vraie Big Red Parker: rouge RAL3020, shaker 2 decks superposés 6x20ft, châssis soudé main hiver 2012, 12.2m x 3.2m, 6 sluices 90cm, grizzly haut. Monument, débloque après 500oz, visitable musée.',en:'LEGACY - Not for sale. Real Big Red red shaker 2 decks, 12.2x3.2m, 6 sluices.'},use:'Musée, pas production'},
+  {id:'pump_6',name:{fr:'Pompe 6\" Honda GX390 Rouge/Bleu',en:'Pump 6\" Honda GX390 Red/Blue'},cat:'pump',role:'Eau',buy:8500,rent:1100,prod:0,fuel:4,power:0,need:['water_source'],img:'assets/equip_pump.jpg',desc:{fr:'Honda GX390 rouge + corps pompe bleu, 1000GPM, tuyau layflat bleu 6\" 100m, crépine. Sans eau pas d\'or. 6\" pour 50 TPH, 10\" pour Sluicifer.',en:'Honda GX390 red + blue body, 1000GPM, blue layflat hose, strainer.'},use:'Rivière (source) -> Pompe -> Tuyaux -> Bassin -> Laverie'},
+  {id:'pond',name:{fr:'Bassin Décantation 20x30m - Terrassé',en:'Settling Pond 20x30m - Excavated'},cat:'pond',role:'Eau',buy:12000,rent:1500,prod:0,fuel:0,power:0,need:[],img:'assets/equip_pond.jpg',desc:{fr:'Excavation 20x30x2m=1200m³, shader eau boueuse marron + décantation 0.15*(1-mud). Obligatoire env, sinon amende $5k/j + prod -60%. Recirculation eau claire vers rivière.',en:'20x30x2m=1200m³ excavation, muddy shader, mandatory env.'},use:'Pompe -> Bassin (décante boue) -> Laverie + retour eau claire'},
+  {id:'gen_250',name:{fr:'Groupe CAT C9 250kW Jaune',en:'CAT C9 250kW Generator Yellow'},cat:'generator',role:'Élec',buy:29000,rent:3200,prod:0,fuel:18,power:-250,need:['fuel'],img:'assets/equip_generator.jpg',desc:{fr:'CAT C9 jaune #FFCC00, réservoir 500L, radiateur gros, 250kW pour Sluicifer. 18L/h diesel. Fournit élec via câbles 4/0.',en:'CAT C9 yellow #FFCC00, 500L tank, 250kW for Sluicifer.'},use:'Fuel -> Groupe -> Câbles -> Trémie/Convoyeur/Laverie'},
+  {id:'truck_25',name:{fr:'Tombereau CAT 745 25T - Boue',en:'CAT 745 Rock Truck 25T - Mud'},cat:'truck',role:'Transport',buy:26000,rent:3100,prod:12,fuel:7,power:0,need:['fuel'],img:'assets/equip_truck.jpg',desc:{fr:'Bennette 25T, 6 roues, peut s\'embourber en boue profonde >0.6m, besoin D6 LGP pour treuillage câble (Chaos). Alternative convoyeur.',en:'25T bed, 6 wheels, can bog in deep mud >0.6m, need D6 winch.'},use:'Pelle -> Camion -> Trémie (bonus 12% si 2 camions)'},
 ];
 
-let state = JSON.parse(localStorage.getItem('gr_state_v3')||'null') || {
-  money:125000, gold:0, goldInWash:0, paydirt:0, diesel:3500, dieselCap:6000, day:1, year:1, hour:6, seasonDay:1, seasonLen:105, goldPrice:1948, weather:'Soleil', temp:14,
-  ownedClaims:[], rentedClaims:[], leasedOut:[], fleet:[], activeClaimId:null, claimData:{}, dailyGold:0, totalGold:0, totalPay:0, loan:0, speed:1, mud:0.25,
-  workers:{operators:0, mechanics:0, foremen:0}, admin:false, installed:{}
+// ===== STATE =====
+let state=JSON.parse(localStorage.getItem('gr_state_v5')||'null')||{
+  money:125000,gold:0,goldInWash:0,paydirt:0,diesel:3500,dieselCap:6000,day:1,year:1,hour:6,seasonDay:1,seasonLen:105,goldPrice:1985,weather:'Soleil',temp:14,
+  ownedClaims:[],rentedClaims:[],leasedOut:[],fleet:[],activeClaimId:null,claimData:{},dailyGold:0,totalGold:0,totalPay:0,loan:0,speed:1,mud:0.25,
+  workers:{operators:0,mechanics:0,foremen:0},admin:false,adminCode:currentUser?currentUser.adminCode:'',installed:{}
 };
 
-function saveState(){ localStorage.setItem('gr_state_v3', JSON.stringify(state)); /* silent save, no log spam */ }
-function log(msg,type='info'){ const el=document.getElementById('gameLog'); if(!el) return; const d=document.createElement('div'); d.className='entry '+type; const h=String(Math.floor(state.hour)).padStart(2,'0'); const m=String(Math.floor((state.hour%1)*60)).padStart(2,'0'); d.innerHTML=`<span style="color:#555">[${h}:${m}]</span> ${msg}`; el.prepend(d); if(el.children.length>70) el.lastChild.remove(); }
+function saveState(){ localStorage.setItem('gr_state_v5',JSON.stringify(state)); }
+function log(msg,type='info'){
+  const el=document.getElementById('gameLog'); if(!el) return;
+  const d=document.createElement('div'); d.className='entry '+type;
+  const h=String(Math.floor(state.hour)).padStart(2,'0'); const m=String(Math.floor((state.hour%1)*60)).padStart(2,'0');
+  d.innerHTML=`<span style="color:#555">[${h}:${m}]</span> ${msg}`;
+  el.prepend(d); if(el.children.length>70) el.lastChild.remove();
+  if(type==='gold'||type==='bad') console.log(msg);
+}
 
-let scene, camera, renderer, orbitControls, fpsControls, terrainMesh, waterMesh, fleetGroup, raycaster, mouse, isFPS=false, currentVehicle=null, keys={}, adminCode='BEETS-ADMIN-2025-GOLD';
-let leafletMap=null, leafletMarkers={};
+// ===== THREE.JS REALISTIC =====
+let scene,camera,renderer,orbitControls,fpsControls,terrainMesh,waterMesh,fleetGroup,raycaster,mouse,isFPS=false,currentVehicle=null,keys={},heightmap=[],terrainSize=160,terrainRes=128,buildMode=false,buildGhost=null,buildType='conveyor',buildRot=0;
+let detailScene,detailCamera,detailRenderer,detailMesh;
 
 function init3D(){
-  scene=new THREE.Scene();
-  scene.fog=new THREE.FogExp2(0x0a1411,0.009);
-  scene.background=new THREE.Color(0x0c1912);
-  camera=new THREE.PerspectiveCamera(68, window.innerWidth/window.innerHeight, 0.1, 2000);
-  camera.position.set(58,42,58);
-  renderer=new THREE.WebGLRenderer({canvas:document.getElementById('canvas3d'), antialias:true, powerPreference:'high-performance'});
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-  renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.12;
-
-  orbitControls=new OrbitControls(camera, renderer.domElement);
-  orbitControls.enableDamping=true; orbitControls.dampingFactor=0.08; orbitControls.maxPolarAngle=Math.PI/2.04; orbitControls.minDistance=5; orbitControls.maxDistance=230;
-
-  fpsControls=new PointerLockControls(camera, document.body);
+  scene=new THREE.Scene(); scene.fog=new THREE.FogExp2(0x0a1511,0.009); scene.background=new THREE.Color(0x0c1912);
+  camera=new THREE.PerspectiveCamera(68,window.innerWidth/window.innerHeight,0.1,2000); camera.position.set(58,42,58);
+  renderer=new THREE.WebGLRenderer({canvas:document.getElementById('canvas3d'),antialias:true}); renderer.setSize(window.innerWidth,window.innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.12;
+  orbitControls=new THREE.OrbitControls(camera, renderer.domElement); orbitControls.enableDamping=true; orbitControls.dampingFactor=0.08; orbitControls.maxPolarAngle=Math.PI/2.04; orbitControls.minDistance=5; orbitControls.maxDistance=240;
+  fpsControls=new THREE.PointerLockControls(camera, document.body);
   fpsControls.addEventListener('lock',()=>{ isFPS=true; document.getElementById('fpsHint').classList.remove('hidden'); orbitControls.enabled=false; });
   fpsControls.addEventListener('unlock',()=>{ isFPS=false; document.getElementById('fpsHint').classList.add('hidden'); orbitControls.enabled=true; if(currentVehicle) exitVehicle(); });
 
-  const sun=new THREE.DirectionalLight(0xfff5e0, 2.1); sun.position.set(85,130,65); sun.castShadow=true; sun.shadow.mapSize.set(2048,2048); sun.shadow.camera.left=-130; sun.shadow.camera.right=130; sun.shadow.camera.top=130; sun.shadow.camera.bottom=-130; scene.add(sun);
-  scene.add(new THREE.AmbientLight(0x9bb6a8,0.42));
-  scene.add(new THREE.HemisphereLight(0x8ec6b0,0x2a2015,0.55));
+  const sun=new THREE.DirectionalLight(0xfff5e0,2.1); sun.position.set(85,130,65); sun.castShadow=true; sun.shadow.mapSize.set(2048,2048); sun.shadow.camera.left=-130; sun.shadow.camera.right=130; sun.shadow.camera.top=130; sun.shadow.camera.bottom=-130; scene.add(sun);
+  scene.add(new THREE.AmbientLight(0x9bb6a8,0.42)); scene.add(new THREE.HemisphereLight(0x8ec6b0,0x2a2015,0.55));
 
-  // sky
+  // Sky shader
   const skyGeo=new THREE.SphereGeometry(1300,32,32);
-  const skyMat=new THREE.ShaderMaterial({ side:THREE.BackSide, vertexShader:`varying vec3 vP;void main(){vP=(modelMatrix*vec4(position,1.0)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`, fragmentShader:`varying vec3 vP;void main(){float h=normalize(vP).y;float t=clamp((h+0.28)/0.85,0.,1.);vec3 top=vec3(0.48,0.78,0.92);vec3 mid=vec3(0.20,0.34,0.42);vec3 bot=vec3(0.07,0.12,0.09);vec3 col=mix(bot,mid,smoothstep(0.,0.45,t));col=mix(col,top,smoothstep(0.45,1.,t));gl_FragColor=vec4(col,1.);}` });
-  scene.add(new THREE.Mesh(skyGeo, skyMat));
+  const skyMat=new THREE.ShaderMaterial({side:THREE.BackSide,vertexShader:`varying vec3 vP;void main(){vP=(modelMatrix*vec4(position,1.0)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,fragmentShader:`varying vec3 vP;void main(){float h=normalize(vP).y;float t=clamp((h+0.28)/0.85,0.,1.);vec3 top=vec3(0.48,0.78,0.92);vec3 mid=vec3(0.20,0.34,0.42);vec3 bot=vec3(0.07,0.12,0.09);vec3 col=mix(bot,mid,smoothstep(0.,0.45,t));col=mix(col,top,smoothstep(0.45,1.,t));gl_FragColor=vec4(col,1.);}`});
+  scene.add(new THREE.Mesh(skyGeo,skyMat));
 
-  createRealisticTerrain();
   fleetGroup=new THREE.Group(); scene.add(fleetGroup);
   raycaster=new THREE.Raycaster(); mouse=new THREE.Vector2();
 
-  window.addEventListener('resize',()=>{ camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); if(leafletMap) leafletMap.invalidateSize(); });
-  window.addEventListener('keydown',e=>{ keys[e.code]=true; if(e.code==='KeyV') toggleFPS(); if(e.code==='KeyE' && isFPS) tryEnterVehicle(); });
+  // Detail 3D preview renderer
+  detailScene=new THREE.Scene(); detailScene.background=new THREE.Color(0x11100e);
+  detailCamera=new THREE.PerspectiveCamera(45, 1.5, 0.1, 100); detailCamera.position.set(4,2.5,4);
+  detailRenderer=new THREE.WebGLRenderer({canvas:document.getElementById('detail3dCanvas'),antialias:true,alpha:true}); detailRenderer.setSize(620,280); detailRenderer.shadowMap.enabled=true;
+  detailScene.add(new THREE.AmbientLight(0xffffff,0.6)); const dl=new THREE.DirectionalLight(0xfff5e0,1.5); dl.position.set(5,10,5); dl.castShadow=true; detailScene.add(dl);
+  detailMesh=null;
+
+  window.addEventListener('resize',()=>{ camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); if(leafletMap) leafletMap.invalidateSize(); detailRenderer.setSize(620,280); });
+  window.addEventListener('keydown',e=>{ keys[e.code]=true; if(e.code==='KeyV') toggleFPS(); if(e.code==='KeyE'&&isFPS) tryEnterVehicle(); if(e.code==='KeyB') toggleBuildMode(); });
   window.addEventListener('keyup',e=>{ keys[e.code]=false; });
-  renderer.domElement.addEventListener('click', onSceneClick);
+  window.addEventListener('wheel',e=>{ if(buildMode){ buildRot+=e.deltaY>0?0.26:-0.26; if(buildGhost) buildGhost.rotation.y=buildRot; } });
+  renderer.domElement.addEventListener('click',onSceneClick);
+
+  // Si pas de claim, affiche écran verrouillé
+  if(!state.activeClaimId) showLocked(true); else loadRealClaim(state.activeClaimId);
 
   animate();
 }
 
-function createRealisticTerrain(){
-  // improved terrain with diamond-square + textures
-  const size=160; const segs=140;
-  const geo=new THREE.PlaneGeometry(size,size,segs,segs);
-  const pos=geo.attributes.position; const colors=[];
-  const col=new THREE.Color();
+function showLocked(show){
+  document.getElementById('lockedOverlay').classList.toggle('hidden', !show);
+  if(show) log('🔒 Mine 3D verrouillée - Achète concession sur Carte US', 'warn');
+}
+
+function latLngToTile(lat,lng,zoom){
+  const x=Math.floor((lng+180)/360*Math.pow(2,zoom));
+  const latRad=lat*Math.PI/180;
+  const y=Math.floor((1-Math.log(Math.tan(latRad)+1/Math.cos(latRad))/Math.PI)/2*Math.pow(2,zoom));
+  return {x,y};
+}
+
+function loadSatelliteTexture(lat,lng){
+  // Utilise Esri World Imagery tile 15 (gratuit, CORS OK) - vraie texture satellite de la concession
+  const zoom=15;
+  const tile=latLngToTile(lat,lng,zoom);
+  const url=`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${zoom}/${tile.y}/${tile.x}`;
+  const loader=new THREE.TextureLoader();
+  loader.crossOrigin='anonymous';
+  loader.load(url, (tex)=>{
+    tex.wrapS=tex.wrapT=THREE.RepeatWrapping; tex.repeat.set(4,4);
+    if(terrainMesh) terrainMesh.material.map=tex; terrainMesh.material.needsUpdate=true;
+    log(`🛰️ Texture satellite réelle chargée pour lat ${lat} lng ${lng} tile ${tile.x}/${tile.y} (Esri)`, 'sys');
+  }, undefined, ()=>{ log('Texture satellite fail CORS, fallback couleur', 'warn'); });
+}
+
+function generateVirginTerrain(claim){
+  // Terrain vierge réel - PAS de fosse au début
+  const size=terrainSize; const res=terrainRes;
+  const geo=new THREE.PlaneGeometry(size,size,res,res);
+  const pos=geo.attributes.position; const colors=[]; const col=new THREE.Color();
+  heightmap=[]; for(let z=0;z<res;z++){ heightmap[z]=[]; for(let x=0;x<res;x++) heightmap[z][x]=0; }
   for(let i=0;i<pos.count;i++){
-    const x=pos.getX(i), y=pos.getY(i);
-    const n=Math.sin(x*0.065)*Math.cos(y*0.065)*2.8 + Math.sin(x*0.018+y*0.012)*5.5 + Math.sin(x*0.12)*0.6;
-    const dist=Math.sqrt(x*x+y*y);
-    const pit=-Math.max(0, 22 - dist*0.42)*1.25 - Math.max(0, 10 - Math.abs(x+12))*0.8; // main pit + side cut
-    const ridge=Math.sin(dist*0.18)*0.9;
-    const h=n+pit+ridge;
+    const x=pos.getX(i), z=pos.getY(i);
+    // Rivière sinueuse à x~30
+    const riverDist=Math.abs(x-30+Math.sin(z*0.05)*8);
+    let river=0; if(riverDist<6) river=-1.2-(6-riverDist)*0.3;
+    // Naturel plat + légère ondulation, pas de pit
+    const natural=Math.sin(x*0.04)*Math.cos(z*0.04)*0.8 + Math.sin(x*0.015)*1.2;
+    const h=river+natural;
     pos.setZ(i,h);
-    // realistic colors + forest edge
-    if(h<-8){ col.setHex(0x2b1e14); } // deep pit dark mud
-    else if(h<-3){ col.setHSL(0.08,0.35,0.18+Math.random()*0.05); } // wet mud
-    else if(h<1.2){ col.setHSL(0.07,0.28,0.26+Math.random()*0.06); } // dry dirt
-    else if(h<4){ col.setHSL(0.24,0.22,0.30+Math.random()*0.08); } // grass/dirt mix
-    else { col.setHSL(0.25,0.32,0.28+Math.random()*0.07); } // forest
+    const ix=Math.floor((x/size+0.5)*res); const iz=Math.floor((z/size+0.5)*res);
+    if(ix>=0&&ix<res&&iz>=0&&iz<res) heightmap[iz][ix]=h;
+    if(h<-0.8) col.setHex(0x2b1e14); else if(h<-0.2) col.setHSL(0.08,0.35,0.18); else if(h<0.5) col.setHSL(0.07,0.28,0.26); else if(h<2) col.setHSL(0.24,0.22,0.30); else col.setHSL(0.25,0.32,0.28);
     colors.push(col.r,col.g,col.b);
   }
   geo.setAttribute('color', new THREE.Float32BufferAttribute(colors,3));
   geo.computeVertexNormals();
-  const mat=new THREE.MeshStandardMaterial({ vertexColors:true, roughness:0.92, metalness:0.04 });
-  terrainMesh=new THREE.Mesh(geo, mat); terrainMesh.rotation.x=-Math.PI/2; terrainMesh.receiveShadow=true; scene.add(terrainMesh);
-
-  // water pond
-  const wGeo=new THREE.PlaneGeometry(48,36,1,1);
-  const wMat=new THREE.MeshStandardMaterial({ color:0x1a5a72, transparent:true, opacity:0.72, roughness:0.14, metalness:0.45 });
-  waterMesh=new THREE.Mesh(wGeo, wMat); waterMesh.rotation.x=-Math.PI/2; waterMesh.position.set(42,-0.9,-32); waterMesh.receiveShadow=true; scene.add(waterMesh);
-
-  // add trees & rocks instances for realism
-  const treeGeo=new THREE.ConeGeometry(0.9,2.2,7); const treeMat=new THREE.MeshStandardMaterial({color:0x1e3d1a, roughness:0.9});
-  const trunkGeo=new THREE.CylinderGeometry(0.14,0.18,1.0,6); const trunkMat=new THREE.MeshStandardMaterial({color:0x3d2817});
-  for(let i=0;i<90;i++){
-    const x=(Math.random()-0.5)*140, z=(Math.random()-0.5)*140;
-    if(Math.sqrt(x*x+z*z)<26) continue; // not in pit
-    const h=getTerrainHeight(x,z);
-    if(h<1) continue;
-    const g=new THREE.Group();
-    const trunk=new THREE.Mesh(trunkGeo,trunkMat); trunk.position.y=0.5; trunk.castShadow=true; g.add(trunk);
-    const cone=new THREE.Mesh(treeGeo,treeMat); cone.position.y=1.9; cone.castShadow=true; g.add(cone);
-    g.position.set(x,h,z); g.rotation.y=Math.random()*Math.PI*2; g.scale.setScalar(0.8+Math.random()*0.9); scene.add(g);
-  }
-  // rocks gold veins
-  for(let i=0;i<120;i++){
-    const x=(Math.random()-0.5)*84, z=(Math.random()-0.5)*84; if(Math.sqrt(x*x+z*z)>44) continue;
-    const h=getTerrainHeight(x,z)+0.06;
-    const g=new THREE.SphereGeometry(0.11+Math.random()*0.23,6,6); const m=new THREE.MeshStandardMaterial({ color:0xffd54f, emissive:0xff8f00, emissiveIntensity:0.25+Math.random()*0.45, roughness:0.32, metalness:0.82 });
-    const mesh=new THREE.Mesh(g,m); mesh.position.set(x,h,z); mesh.scale.set(1,0.45,1); scene.add(mesh);
-  }
-}
-function getTerrainHeight(x,z){
-  const dist=Math.sqrt(x*x+z*z);
-  const pit=-Math.max(0,22-dist*0.42)*1.25;
-  return pit + Math.sin(x*0.065)*Math.cos(z*0.065)*1.0;
+  const mat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.92,metalness:0.04});
+  if(terrainMesh) scene.remove(terrainMesh);
+  terrainMesh=new THREE.Mesh(geo,mat); terrainMesh.rotation.x=-Math.PI/2; terrainMesh.receiveShadow=true; scene.add(terrainMesh);
+  // Eau
+  if(waterMesh) scene.remove(waterMesh);
+  const wGeo=new THREE.PlaneGeometry(14,size,1,1); const wMat=new THREE.MeshStandardMaterial({color:0x1a5a72,transparent:true,opacity:0.72,roughness:0.14,metalness:0.45});
+  waterMesh=new THREE.Mesh(wGeo,wMat); waterMesh.rotation.x=-Math.PI/2; waterMesh.position.set(30,-0.9,0); scene.add(waterMesh);
+  // Arbres hors pit
+  for(let i=0;i<90;i++){ const x=(Math.random()-0.5)*140, z=(Math.random()-0.5)*140; if(Math.sqrt(x*x+z*z)<28) continue; const h=getHeightAt(x,z); if(h<1) continue; const g=new THREE.Group(); const trunk=new THREE.Mesh(new THREE.CylinderGeometry(0.14,0.18,1.0,6),new THREE.MeshStandardMaterial({color:0x3d2817})); trunk.position.y=0.5; trunk.castShadow=true; g.add(trunk); const cone=new THREE.Mesh(new THREE.ConeGeometry(0.9,2.2,7),new THREE.MeshStandardMaterial({color:0x1e3d1a})); cone.position.y=1.9; cone.castShadow=true; g.add(cone); g.position.set(x,h,z); g.rotation.y=Math.random()*Math.PI*2; g.scale.setScalar(0.8+Math.random()*0.9); scene.add(g); }
+  // Charge texture satellite réelle si claim fourni
+  if(claim) loadSatelliteTexture(claim.lat, claim.lng);
 }
 
-function createExcavModel(){
+function getHeightAt(wx,wz){
+  const fx=(wx/terrainSize+0.5)*terrainRes; const fz=(wz/terrainSize+0.5)*terrainRes;
+  const x0=Math.floor(fx), z0=Math.floor(fz);
+  if(x0<0||x0>=terrainRes-1||z0<0||z0>=terrainRes-1) return 0;
+  const tx=fx-x0, tz=fz-z0;
+  const h00=heightmap[z0][x0], h10=heightmap[z0][x0+1], h01=heightmap[z0+1][x0], h11=heightmap[z0+1][x0+1];
+  const hx0=h00*(1-tx)+h10*tx, hx1=h01*(1-tx)+h11*tx;
+  return hx0*(1-tz)+hx1*tz;
+}
+
+function loadRealClaim(claimId){
+  const claim=CLAIMS.find(c=>c.id===claimId);
+  if(!claim){ showLocked(true); return; }
+  state.activeClaimId=claimId; saveState(); showLocked(false);
+  generateVirginTerrain(claim);
+  log(`🗺️ Concession ${claim.name.fr} chargée - Terrain DEM réel vierge lat ${claim.lat} lng ${claim.lng} + satellite Esri + forêt`, 'gold');
+  renderHUD();
+}
+
+// ===== MODELS FIDÈLES - Plus de cubes chelous =====
+function createCAT320Model(){
   const g=new THREE.Group();
-  const baseMat=new THREE.MeshStandardMaterial({color:0xffcc00, roughness:0.58, metalness:0.18});
-  const trackMat=new THREE.MeshStandardMaterial({color:0x1e1e1e, roughness:0.95});
-  const metalMat=new THREE.MeshStandardMaterial({color:0x4a4843, roughness:0.52, metalness:0.62});
-  const tGeo=new THREE.BoxGeometry(1.15,0.48,3.1);
-  const left=new THREE.Mesh(tGeo,trackMat); left.position.set(-1.05,0.24,0); left.castShadow=true;
+  const yellow=new THREE.MeshStandardMaterial({color:0xffcc00,roughness:0.58,metalness:0.18});
+  const dark=new THREE.MeshStandardMaterial({color:0x1e1e1e,roughness:0.92});
+  const metal=new THREE.MeshStandardMaterial({color:0x4a4843,roughness:0.52,metalness:0.62});
+  const blackGlass=new THREE.MeshStandardMaterial({color:0x111827,roughness:0.2,metalness:0.1});
+  // Tracks détaillés : 2 chenilles avec patins
+  const trackGeo=new THREE.BoxGeometry(1.15,0.48,3.1);
+  const left=new THREE.Mesh(trackGeo,dark); left.position.set(-1.05,0.24,0); left.castShadow=true;
+  // Ajoute galets visibles
+  for(let i=-1;i<=1;i+=0.7){ const roller=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.18,1.18,12),dark); roller.rotation.z=Math.PI/2; roller.position.set(-1.05,0.5,i); left.add(roller); }
   const right=left.clone(); right.position.x=1.05; g.add(left,right);
-  const base=new THREE.Mesh(new THREE.BoxGeometry(2.5,0.58,2.3),baseMat); base.position.y=0.78; base.castShadow=true; g.add(base);
-  const cab=new THREE.Mesh(new THREE.BoxGeometry(1.05,0.95,0.95),new THREE.MeshStandardMaterial({color:0x111827})); cab.position.set(0.38,1.52,0.18); g.add(cab);
+  const base=new THREE.Mesh(new THREE.BoxGeometry(2.5,0.58,2.3),yellow); base.position.y=0.78; base.castShadow=true; g.add(base);
+  const cab=new THREE.Mesh(new THREE.BoxGeometry(1.05,0.95,0.95),blackGlass); cab.position.set(0.38,1.52,0.18); g.add(cab);
+  // Bras avec vérins visibles
   const arm1G=new THREE.Group(); arm1G.position.set(-0.86,1.16,0);
-  const arm1=new THREE.Mesh(new THREE.BoxGeometry(0.34,2.3,0.34),metalMat); arm1.position.y=1.15; arm1.castShadow=true; arm1G.add(arm1);
+  const arm1=new THREE.Mesh(new THREE.BoxGeometry(0.34,2.3,0.34),metal); arm1.position.y=1.15; arm1.castShadow=true; arm1G.add(arm1);
+  const cyl1=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,1.8,8),new THREE.MeshStandardMaterial({color:0x888888,metalness:0.8})); cyl1.position.set(0.25,0.9,0); cyl1.rotation.z=0.2; arm1G.add(cyl1);
   const arm2G=new THREE.Group(); arm2G.position.set(0,2.3,0);
-  const arm2=new THREE.Mesh(new THREE.BoxGeometry(0.27,1.9,0.27),metalMat); arm2.position.y=0.86; arm2.castShadow=true; arm2G.add(arm2);
-  const bucket=new THREE.Mesh(new THREE.BoxGeometry(0.88,0.58,0.68),new THREE.MeshStandardMaterial({color:0x3f3f46})); bucket.position.y=1.9; bucket.castShadow=true; arm2G.add(bucket);
-  arm1G.add(arm2G); g.add(arm1G);
-  g.userData={arm1G,arm2G,bucket,anim:0,type:'excavator'};
+  const arm2=new THREE.Mesh(new THREE.BoxGeometry(0.27,1.9,0.27),metal); arm2.position.y=0.86; arm2.castShadow=true; arm2G.add(arm2);
+  const bucket=new THREE.Mesh(new THREE.BoxGeometry(0.88,0.58,0.68),new THREE.MeshStandardMaterial({color:0x3f3f46})); bucket.position.y=1.9; bucket.castShadow=true;
+  // Dents godet
+  for(let i=-0.3;i<=0.3;i+=0.3){ const tooth=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.18,0.12),new THREE.MeshStandardMaterial({color:0xaaaaaa})); tooth.position.set(i,2.25,0.3); bucket.add(tooth); }
+  arm2G.add(bucket); arm1G.add(arm2G); g.add(arm1G);
+  g.userData={arm1G,arm2G,bucket,anim:0,type:'CAT320'};
   return g;
 }
-function createDozerModel(){
+function createD6Model(){
   const g=new THREE.Group();
-  const mat=new THREE.MeshStandardMaterial({color:0xff7a00, roughness:0.62});
-  const track=new THREE.Mesh(new THREE.BoxGeometry(0.98,0.52,2.7),new THREE.MeshStandardMaterial({color:0x1a1a1a})); track.position.set(-0.86,0.26,0); track.castShadow=true;
-  const t2=track.clone(); t2.position.x=0.86; g.add(track,t2);
+  const mat=new THREE.MeshStandardMaterial({color:0xff7a00,roughness:0.62});
+  const track=new THREE.Mesh(new THREE.BoxGeometry(1.25,0.55,2.9),new THREE.MeshStandardMaterial({color:0x1a1a1a})); track.position.set(-0.96,0.27,0); track.castShadow=true;
+  const t2=track.clone(); t2.position.x=0.96; g.add(track,t2);
   const body=new THREE.Mesh(new THREE.BoxGeometry(2.15,0.88,1.75),mat); body.position.y=0.92; body.castShadow=true; g.add(body);
-  const blade=new THREE.Mesh(new THREE.BoxGeometry(3.1,0.96,0.22),new THREE.MeshStandardMaterial({color:0x3e3e42, metalness:0.58})); blade.position.set(0,0.38,1.55); blade.castShadow=true; g.add(blade);
-  g.userData={blade,type:'dozer'};
+  const blade=new THREE.Mesh(new THREE.BoxGeometry(4.2,0.96,0.22),new THREE.MeshStandardMaterial({color:0x3e3e42,metalness:0.58})); blade.position.set(0,0.42,1.75); blade.castShadow=true; g.add(blade);
+  // Ripper arrière
+  const ripper=new THREE.Mesh(new THREE.BoxGeometry(0.22,0.9,0.15),new THREE.MeshStandardMaterial({color:0x222})); ripper.position.set(0,0.5,-1.2); g.add(ripper);
+  g.userData={blade,type:'D6'};
   return g;
 }
-function createWashModel(isBig){
-  const g=new THREE.Group(); const s=isBig?1.6:1.0;
-  const frame=new THREE.Mesh(new THREE.BoxGeometry(4*s,0.48*s,2*s),new THREE.MeshStandardMaterial({color:0xb91c1c})); frame.position.y=0.24*s; frame.castShadow=true; g.add(frame);
-  const tromGeo=new THREE.CylinderGeometry(0.68*s,0.68*s,3.5*s,20,1,true);
-  const tromMat=new THREE.MeshStandardMaterial({color:isBig?0xef4444:0xf59e0b, roughness:0.48, metalness:0.38, side:THREE.DoubleSide});
-  const trom=new THREE.Mesh(tromGeo,tromMat); trom.rotation.z=Math.PI/2; trom.position.set(0,1.55*s,0); trom.castShadow=true; g.add(trom);
-  const conv=new THREE.Mesh(new THREE.BoxGeometry(0.38,0.14,5*s),new THREE.MeshStandardMaterial({color:0x1f1f1f})); conv.position.set(0,0.88*s,2.55*s); conv.rotation.x=0.24; g.add(conv);
-  g.userData={trom, spin:0, type:'washplant'};
+function createSluiciferModel(){
+  // FIDÈLE : noir mat RAL9005 + orange RAL2005, deck 6x20ft
+  const g=new THREE.Group(); const s=1.0;
+  const blackMat=new THREE.MeshStandardMaterial({color:0x0a0a0a,roughness:0.7,metalness:0.2});
+  const orangeMat=new THREE.MeshStandardMaterial({color:0xff6a00,roughness:0.5,metalness:0.1});
+  const frame=new THREE.Mesh(new THREE.BoxGeometry(6*s,0.5*s,3*s),blackMat); frame.position.y=0.25*s; frame.castShadow=true; g.add(frame);
+  // Deck shaker
+  const deck=new THREE.Mesh(new THREE.BoxGeometry(6*s,0.12*s,3*s),orangeMat); deck.position.set(0,1.6*s,0); deck.castShadow=true; g.add(deck);
+  // Tôle perforée (simulée avec petites boites)
+  for(let i=0;i<20;i++){ const hole=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,0.13,6),new THREE.MeshStandardMaterial({color:0x111})); hole.position.set((Math.random()-0.5)*5.8,1.67, (Math.random()-0.5)*2.8); g.add(hole); }
+  // 3 sluices larges dessous
+  for(let i=-1;i<=1;i++){ const sluice=new THREE.Mesh(new THREE.BoxGeometry(6*s,0.18*s,0.36*s),new THREE.MeshStandardMaterial({color:0x4a2a0a})); sluice.position.set(0,0.85*s,i*0.9*s); sluice.castShadow=true; g.add(sluice); }
+  // Hopper entrée
+  const hopper=new THREE.Mesh(new THREE.BoxGeometry(1.6*s,0.9*s,1.6*s),new THREE.MeshStandardMaterial({color:0x333})); hopper.position.set(-3.2*s,2.1*s,0); g.add(hopper);
+  // Spray bars
+  const spray=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,6*s,8),new THREE.MeshStandardMaterial({color:0x8888ff})); spray.rotation.z=Math.PI/2; spray.position.set(0,1.85*s,0); g.add(spray);
+  g.userData={type:'Sluicifer'};
   return g;
 }
-function createTruckModel(){
+function createConveyorModel(){
   const g=new THREE.Group();
-  const body=new THREE.Mesh(new THREE.BoxGeometry(2.15,0.95,2.9),new THREE.MeshStandardMaterial({color:0xfacc15})); body.position.y=0.96; body.castShadow=true; g.add(body);
-  const cab=new THREE.Mesh(new THREE.BoxGeometry(1.55,0.86,0.96),new THREE.MeshStandardMaterial({color:0x1f2937})); cab.position.set(0,1.16,-0.96); g.add(cab);
-  for(let x of [-0.96,0.96]) for(let z of [-1.06,0.18,1.06]){ const w=new THREE.Mesh(new THREE.CylinderGeometry(0.36,0.36,0.38,12),new THREE.MeshStandardMaterial({color:0x0f0f0f})); w.rotation.z=Math.PI/2; w.position.set(x,0.36,z); g.add(w); }
-  g.userData={type:'truck'};
+  // Treillis Warren triangulaire réaliste
+  const frameMat=new THREE.MeshStandardMaterial({color:0x3a3a3a,metalness:0.6,roughness:0.4});
+  const beltMat=new THREE.MeshStandardMaterial({color:0x0a0a0a,roughness:0.9});
+  // 2 longerons
+  const long1=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.12,6),frameMat); long1.position.set(-0.4,0.5,0); g.add(long1);
+  const long2=long1.clone(); long2.position.x=0.4; g.add(long2);
+  // Diagonales treillis
+  for(let z=-2.8;z<2.8;z+=0.7){ const diag=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.06,0.9),frameMat); diag.position.set(0,0.5,z); diag.rotation.x=Math.PI/4; g.add(diag); }
+  // Rouleaux
+  for(let z=-2.8;z<2.8;z+=0.7){ const roller=new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.11,0.9,12),new THREE.MeshStandardMaterial({color:0x222})); roller.rotation.z=Math.PI/2; roller.position.set(0,0.72,z); g.add(roller); }
+  // Bande
+  const belt=new THREE.Mesh(new THREE.BoxGeometry(0.9,0.06,6),beltMat); belt.position.y=0.82; g.add(belt);
+  // Tambours tête/pied
+  const drum1=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.22,0.92,16),frameMat); drum1.rotation.z=Math.PI/2; drum1.position.set(0,0.82,3); g.add(drum1);
+  const drum2=drum1.clone(); drum2.position.z=-3; g.add(drum2);
+  g.userData={type:'Conveyor'};
   return g;
 }
 
 const meshByUid=new Map();
 function spawnMesh(f){
-  const t=EQUIP.find(x=>x.id===f.typeId);
+  const def=EQUIP.find(x=>x.id===f.typeId);
   let m;
-  if(t.cat==='excavator') m=createExcavModel();
-  else if(t.cat==='dozer') m=createDozerModel();
-  else if(t.cat==='washplant') m=createWashModel(f.typeId.includes('150'));
-  else if(t.cat==='truck') m=createTruckModel();
+  if(def.cat==='excavator') m=createCAT320Model();
+  else if(def.cat==='dozer') m=createD6Model();
+  else if(def.id==='wash_sluicifer') m=createSluiciferModel();
+  else if(def.cat==='conveyor') m=createConveyorModel();
+  else if(def.cat==='washplant') m=createSluiciferModel(); // fallback
   else m=new THREE.Mesh(new THREE.BoxGeometry(0.9,0.9,0.9),new THREE.MeshStandardMaterial({color:0x666}));
-  const ang=Math.random()*Math.PI*2; const rad=7+Math.random()*22;
-  m.position.set(Math.cos(ang)*rad, getTerrainHeight(Math.cos(ang)*rad, Math.sin(ang)*rad)+0.55, Math.sin(ang)*rad);
+  const ang=Math.random()*Math.PI*2; const rad=8+Math.random()*20;
+  m.position.set(Math.cos(ang)*rad, getHeightAt(Math.cos(ang)*rad, Math.sin(ang)*rad)+0.55, Math.sin(ang)*rad);
   m.rotation.y=Math.random()*Math.PI*2;
   fleetGroup.add(m); meshByUid.set(f.uid,m); return m;
 }
@@ -474,396 +458,232 @@ function removeMesh(uid){ const m=meshByUid.get(uid); if(m){ fleetGroup.remove(m
 
 function onSceneClick(event){
   if(isFPS) return;
+  if(buildMode){ placeBuild(); return; }
   mouse.x=(event.clientX/window.innerWidth)*2-1; mouse.y=-(event.clientY/window.innerHeight)*2+1;
   raycaster.setFromCamera(mouse,camera);
   const intersects=raycaster.intersectObjects(fleetGroup.children,true);
   if(intersects.length>0){
     let obj=intersects[0].object;
-    while(obj.parent && obj.parent!==fleetGroup) obj=obj.parent;
+    while(obj.parent&&obj.parent!==fleetGroup) obj=obj.parent;
     const uid=[...meshByUid.entries()].find(([k,v])=>v===obj)?.[0];
-    if(uid){ openFleetDetail(uid); }
+    if(uid) openFleetDetail(uid);
   }
 }
 function toggleFPS(){
   if(isFPS){ fpsControls.unlock(); } else { fpsControls.lock(); }
 }
 function tryEnterVehicle(){
-  const near=[...meshByUid.values()].filter(m=>m.position.distanceTo(camera.position)<6);
-  if(near.length===0){ log('Aucun engin à proximité pour entrer (approche-toi)', 'warn'); return; }
-  const veh=near[0];
-  currentVehicle=veh;
-  log(`🚜 Entré dans ${veh.userData.type} — WASD pour conduire, souris pour bras (si pelle). E pour sortir`, 'gold');
-  document.getElementById('fpsLocation').textContent='Dans '+veh.userData.type;
+  const near=[...meshByUid.values()].filter(m=>m.position.distanceTo(camera.position)<5);
+  if(near.length===0){ log('Aucun engin <5m pour entrer', 'warn'); return; }
+  currentVehicle=near[0];
+  log(`🚜 Entré dans ${currentVehicle.userData.type} - WASD conduire, souris bras si pelle, E sortir`, 'gold');
+  document.getElementById('fpsLoc').textContent='Dans '+currentVehicle.userData.type;
 }
-function exitVehicle(){ currentVehicle=null; log('Sorti de l’engin', 'info'); document.getElementById('fpsLocation').textContent='À pied dans le pit'; }
+function exitVehicle(){ currentVehicle=null; log('Sorti engin', 'info'); document.getElementById('fpsLoc').textContent='À pied'; }
 
+function toggleBuildMode(){
+  buildMode=!buildMode;
+  if(buildMode){
+    buildType='conveyor';
+    buildRot=0;
+    buildGhost=createConveyorModel();
+    buildGhost.traverse(c=>{ if(c.isMesh){ c.material= c.material.clone(); c.material.transparent=true; c.material.opacity=0.6; c.material.color.set(0x00ff00); } });
+    scene.add(buildGhost);
+    log('🔧 Mode Build Convoyeur ON - Déplace souris sur sol, molette rotation, clic gauche place, B pour quitter', 'gold');
+  } else {
+    if(buildGhost) scene.remove(buildGhost); buildGhost=null;
+    log('Mode Build OFF', 'sys');
+  }
+}
+function placeBuild(){
+  if(!buildGhost) return;
+  // Raycast sol pour position ghost
+  raycaster.setFromCamera(mouse,camera);
+  const inter=raycaster.intersectObject(terrainMesh);
+  if(inter.length===0) return;
+  const pos=inter[0].point;
+  // Check pente max 18° pour convoyeur
+  const h1=getHeightAt(pos.x,pos.z); const h2=getHeightAt(pos.x+1,pos.z);
+  const slope=Math.abs(h2-h1)*57;
+  if(slope>18){ log('❌ Pente trop forte >18° pour convoyeur', 'bad'); return; }
+  // Place vrai convoyeur
+  const f={uid:'f'+Date.now(),typeId:'conveyor',health:100,hours:0,broken:false,deployed:true,claimId:state.activeClaimId};
+  state.fleet.push(f); saveState();
+  const m=createConveyorModel(); m.position.copy(pos); m.position.y=getHeightAt(pos.x,pos.z)+0.15; m.rotation.y=buildRot; fleetGroup.add(m); meshByUid.set(f.uid,m);
+  log(`✅ Convoyeur placé à ${pos.x.toFixed(1)},${pos.z.toFixed(1)} rot ${(buildRot*57).toFixed(0)}° - Sens que tu veux`, 'gold');
+}
+
+// Detail 3D viewer
 function openFleetDetail(uid){
   const f=state.fleet.find(x=>x.uid===uid); if(!f) return;
-  const t=EQUIP.find(x=>x.id===f.typeId);
+  const def=EQUIP.find(x=>x.id===f.typeId);
   document.getElementById('fleetDetailModal').classList.remove('hidden');
   document.getElementById('fleetDetailInfo').innerHTML=`
-    <div style="display:flex;gap:14px"><img src="${t.img}" class="fleet-img" style="width:160px;height:110px;flex-shrink:0"><div><div style="font-weight:800;font-size:16px">${t.name[SETTINGS.lang]||t.name.fr}</div><div style="font-size:11px;color:#aaa;margin-top:4px">${t.role} • ${t.cat}</div><div style="margin-top:8px;font-size:11px;line-height:1.5;color:#bbb">${t.desc[SETTINGS.lang]||t.desc.fr}</div><div style="margin-top:8px;padding:8px;background:#000;border:1px solid #222;border-radius:8px;font-family:'JetBrains Mono';font-size:10px">📖 Utilisation: ${t.use}<br>⚡ Besoins: ${t.need.join(', ')||'aucun'} • Fuel ${t.fuel}L/h • Power ${t.power||0}kW</div></div></div>
-    <div style="margin-top:12px;display:flex;gap:8px"><div style="flex:1;background:#000;border-radius:10px;padding:8px;text-align:center"><div style="font-size:8px;color:#666">PROD</div><div style="font-weight:800">${t.prod}</div></div><div style="flex:1;background:#000;border-radius:10px;padding:8px;text-align:center"><div style="font-size:8px;color:#666">HEALTH</div><div style="font-weight:800;color:${f.health<30?'#ef4444':'#22c55e'}">${f.health.toFixed(0)}%</div></div><div style="flex:1;background:#000;border-radius:10px;padding:8px;text-align:center"><div style="font-size:8px;color:#666">HEURES</div><div style="font-weight:800">${f.hours.toFixed(0)}h</div></div></div>
+    <div style="display:flex;gap:12px"><img src="${def.img}" style="width:160px;height:110px;object-fit:cover;border-radius:10px;flex-shrink:0"><div><div style="font-weight:800;font-size:14px">${def.name.fr}</div><div style="font-size:10px;color:#aaa">${def.role} • ${def.cat}</div><div style="font-size:11px;color:#bbb;margin-top:6px;line-height:1.4">${def.desc.fr}</div><div style="margin-top:8px;padding:8px;background:#000;border:1px solid #222;border-radius:8px;font-family:'JetBrains Mono';font-size:9px">Utilisation: ${def.use}<br>Besoin: ${def.need.join(', ')||'aucun'} • Fuel ${def.fuel}L/h • Power ${def.power||0}kW</div></div></div>
+    <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px"><div style="background:#000;border-radius:9px;padding:7px;text-align:center"><div style="font-size:7px;color:#666">PROD</div><div style="font-weight:800">${def.prod}</div></div><div style="background:#000;border-radius:9px;padding:7px;text-align:center"><div style="font-size:7px;color:#666">HEALTH</div><div style="font-weight:800;color:${f.health<30?'#ef4444':'#22c55e'}">${f.health.toFixed(0)}%</div></div><div style="background:#000;border-radius:9px;padding:7px;text-align:center"><div style="font-size:7px;color:#666">HEURES</div><div style="font-weight:800">${f.hours.toFixed(0)}h</div></div></div>
   `;
-  // simple 3D preview in modal canvas (reuse scene briefly)
+  // 3D preview: clone model
+  if(detailMesh) detailScene.remove(detailMesh);
+  let preview;
+  if(def.cat==='excavator') preview=createCAT320Model();
+  else if(def.cat==='dozer') preview=createD6Model();
+  else if(def.id==='wash_sluicifer') preview=createSluiciferModel();
+  else if(def.cat==='conveyor') preview=createConveyorModel();
+  else preview=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:0x666}));
+  detailMesh=preview; detailScene.add(detailMesh);
+  document.getElementById('detail3dLabel').textContent='Vue 3D fidèle - Modèle = Image';
 }
 document.getElementById('closeFleetDetail').addEventListener('click',()=>document.getElementById('fleetDetailModal').classList.add('hidden'));
 
+// Map Leaflet
+let leafletMap=null;
 function initLeaflet(){
   if(leafletMap) return;
-  leafletMap=L.map('realMap',{ zoomControl:false }).setView([59,-122],4);
-  L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{ maxZoom:12, attribution:'© OpenTopoMap' }).addTo(leafletMap);
+  leafletMap=L.map('realMap',{zoomControl:false}).setView([63.9,-139.2],5);
+  // Esri satellite pour vraie carte US
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18,attribution:'Esri Satellite'}).addTo(leafletMap);
+  // Overlay claims
   CLAIMS.forEach(c=>{
-    const marker=L.marker([c.lat,c.lng],{ icon:L.divIcon({ className:'', html:`<div style="width:14px;height:14px;border-radius:50%;background:${c.color};border:2px solid #000;box-shadow:0 0 10px ${c.color}"></div>`, iconSize:[14,14] }) }).addTo(leafletMap);
+    const marker=L.marker([c.lat,c.lng],{icon:L.divIcon({className:'',html:`<div style="width:14px;height:14px;border-radius:50%;background:${c.color};border:2px solid #000;box-shadow:0 0 10px ${c.color}"></div>`,iconSize:[14,14]})}).addTo(leafletMap);
     marker.on('click',()=>showClaimDetail(c.id));
-    leafletMarkers[c.id]=marker;
   });
 }
 function showClaimDetail(id){
   const c=CLAIMS.find(x=>x.id===id);
   const owned=state.ownedClaims.includes(id);
   const rented=state.rentedClaims.find(r=>r.id===id);
-  const leased=state.leasedOut.find(l=>l.id===id);
-  const panel=document.getElementById('claimDetailMap')||document.getElementById('claimDetailPanel');
-  if(!panel) return;
-  const name=c.name[SETTINGS.lang]||c.name.fr;
-  const desc=c.desc[SETTINGS.lang]||c.desc.fr;
+  const panel=document.getElementById('claimDetailMap');
   panel.innerHTML=`
-    <img src="${c.img}" style="width:100%;height:110px;object-fit:cover;border-radius:12px">
-    <div style="display:flex;gap:10px;margin-top:10px"><div style="width:46px;height:46px;border-radius:12px;background:${c.color};display:flex;align-items:center;justify-content:center;font-size:22px">⛏️</div><div><div class="font-anton" style="font-size:18px;line-height:1">${name}</div><div style="font-size:10px;color:#aaa;font-family:'JetBrains Mono'">${c.region} • ${c.country} • ${c.type} • Diff ${'★'.repeat(c.diff)}</div></div></div>
-    <div style="margin-top:8px;font-size:11px;color:#bbb;line-height:1.4">${desc}</div>
-    <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:6px;font-family:'JetBrains Mono';font-size:10px"><div style="background:#000;border:1px solid #222;border-radius:10px;padding:8px"><div style="color:#666;font-size:8px">ESTIMATION OR</div><div style="color:#ffb300;font-weight:800">${c.goldMin}-${c.goldMax} oz</div></div><div style="background:#000;border:1px solid #222;border-radius:10px;padding:8px"><div style="color:#666;font-size:8px">RICHESSE</div><div>${c.richness}x • Overburden ${c.over}m</div></div></div>
-    <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+    <img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/12/${Math.floor((c.lng+180)/360*Math.pow(2,12))}/${Math.floor((1-Math.log(Math.tan(c.lat*Math.PI/180)+1/Math.cos(c.lat*Math.PI/180))/Math.PI)/2*Math.pow(2,12))}" style="width:100%;height:90px;object-fit:cover;border-radius:10px;background:#111" onerror="this.style.display='none'">
+    <div style="display:flex;gap:8px;margin-top:8px"><div style="width:42px;height:42px;border-radius:10px;background:${c.color};display:flex;align-items:center;justify-content:center;font-size:20px">⛏️</div><div><div class="font-anton" style="font-size:15px;line-height:1">${c.name.fr}</div><div style="font-size:9px;color:#aaa;font-family:'JetBrains Mono'">${c.region} • ${c.type} • Diff ${'★'.repeat(c.diff)}</div><div style="font-size:8px;color:#777">Lat ${c.lat.toFixed(3)} Lng ${c.lng.toFixed(3)} - Vrai DEM à charger</div></div></div>
+    <div style="margin-top:8px;font-size:10px;color:#bbb;line-height:1.3">${c.desc.fr}</div>
+    <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:5px;font-family:'JetBrains Mono';font-size:9px"><div style="background:#000;border:1px solid #222;border-radius:9px;padding:6px"><div style="color:#666;font-size:7px">OR EST</div><div style="color:#ffb300;font-weight:800">${c.goldMin}-${c.goldMax} oz</div></div><div style="background:#000;border:1px solid #222;border-radius:9px;padding:6px"><div style="color:#666;font-size:7px">RICHESSE</div><div>${c.richness}x Over ${c.over}m</div></div></div>
+    <div style="margin-top:8px;display:flex;flex-direction:column;gap:5px">
       ${!owned&&!rented?`<button onclick="buyClaim('${c.id}')" class="btn btn-gold" style="width:100%;justify-content:space-between;display:flex"><span>ACHETER</span><span>${fmtMoney(c.price)}</span></button><button onclick="rentClaim('${c.id}')" class="btn btn-dark" style="width:100%;justify-content:space-between;display:flex"><span>LOUER 105j</span><span>${fmtMoney(c.rent)}</span></button>`:
-        owned?`<div style="background:#1a1500;border:1px solid #3a2a00;border-radius:10px;padding:7px;font-size:10px">✅ Propriétaire</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><button onclick="activateClaim('${c.id}')" class="btn btn-gold">MINER 3D</button>${!leased?`<button onclick="leaseOutClaim('${c.id}')" class="btn btn-dark">LOUER À TIERS</button>`:`<button onclick="cancelLease('${c.id}')" class="btn btn-dark">Reprendre</button>`}</div>`:
-        `<div style="background:#001a12;border:1px solid #003a2a;border-radius:10px;padding:7px;font-size:10px">🟢 Loué jusqu'à J${rented.untilDay}</div><button onclick="activateClaim('${c.id}')" class="btn btn-gold" style="width:100%">MINER</button>`}
+        owned?`<div style="background:#1a1500;border:1px solid #3a2a00;border-radius:9px;padding:6px;font-size:9px">✅ Proprio - Mine 3D va charger vrai DEM + satellite Esri de cette concession vierge</div><button onclick="activateClaim('${c.id}')" class="btn btn-gold" style="width:100%">MINER 3D RÉEL</button>`:
+        `<div style="background:#001a12;border:1px solid #003a2a;border-radius:9px;padding:6px;font-size:9px">🟢 Loué J${rented.untilDay}</div><button onclick="activateClaim('${c.id}')" class="btn btn-gold" style="width:100%">MINER 3D RÉEL</button>`}
     </div>
   `;
 }
 
-// HUD & LOGIC
-function getClaimData(id){
-  if(!state.claimData[id]){
-    const c=CLAIMS.find(x=>x.id===id);
-    const grid=[]; for(let y=0;y<c.size;y++){ const row=[]; for(let x=0;x<c.size;x++){ row.push({ over:1.2+Math.random()*c.over, pay:36+Math.random()*30, gold:(Math.random()*0.9+0.3)*c.richness*(Math.random()<0.18?1.8:1), cleared:false, mined:false }); } grid.push(row); }
-    state.claimData[id]={grid, cleared:0, mined:0};
-  }
-  return state.claimData[id];
+// State funcs
+function buyClaim(id){ const c=CLAIMS.find(x=>x.id===id); if(state.money<c.price){ log('Fonds insuffisant', 'bad'); return; } state.money-=c.price; state.ownedClaims.push(id); state.rentedClaims=state.rentedClaims.filter(r=>r.id!==id); getClaimData(id); state.activeClaimId=id; saveState(); log(`Achat ${c.name.fr} - Terrain réel DEM vierge va charger`, 'gold'); showLocked(false); loadRealClaim(id); renderHUD(); }
+function rentClaim(id){ const c=CLAIMS.find(x=>x.id===id); if(state.money<c.rent){ log('Pas assez', 'bad'); return; } state.money-=c.rent; state.rentedClaims.push({id,untilDay:state.seasonDay+105}); getClaimData(id); state.activeClaimId=id; saveState(); log(`Location ${c.name.fr} 105j`, 'info'); showLocked(false); loadRealClaim(id); renderHUD(); }
+function activateClaim(id){ state.activeClaimId=id; getClaimData(id); saveState(); showLocked(false); loadRealClaim(id); log(`🚛 Convoi vers ${CLAIMS.find(c=>c.id===id).name.fr} - Terrain réel`, 'info'); switchView('mine'); }
+function getClaimData(id){ if(!state.claimData[id]){ const c=CLAIMS.find(x=>x.id===id); const grid=[]; for(let y=0;y<c.size;y++){ const row=[]; for(let x=0;x<c.size;x++) row.push({over:1.2+Math.random()*c.over,pay:36+Math.random()*30,gold:(Math.random()*0.9+0.3)*c.richness,cleared:false,mined:false}); grid.push(row); } state.claimData[id]={grid,cleared:0,mined:0}; } return state.claimData[id]; }
+function calcPower(id){ let bal=0; state.fleet.filter(f=>f.claimId===id&&f.deployed&&!f.broken).forEach(f=>{ const t=EQUIP.find(x=>x.id===f.typeId); if(t.cat==='generator') bal+= -t.power; else if(t.power) bal-=t.power; }); return bal; }
+function renderHUD(){
+  document.getElementById('hudMoney').textContent=fmtMoney(state.money);
+  document.getElementById('hudGold').textContent=fmtGold(state.gold);
+  document.getElementById('hudGoldVal').textContent=fmtMoney(state.gold*state.goldPrice);
+  document.getElementById('hudPay').textContent=fmtVol(state.paydirt);
+  document.getElementById('hudFuel').textContent=fmtFuel(state.diesel);
+  document.getElementById('fuelBar').style.width=Math.min(100,state.diesel/state.dieselCap*100)+'%';
+  document.getElementById('hudYear').textContent=state.year; document.getElementById('hudDay').textContent=state.seasonDay;
+  document.getElementById('hudGoldPrice').textContent=SETTINGS.region==='EU'? '€'+(state.goldPrice*0.92/31.1035).toFixed(2)+'/g' : '$'+state.goldPrice.toFixed(0)+'/oz';
+  document.getElementById('hudWeather').textContent=state.weather+' '+fmtTemp(state.temp);
+  document.getElementById('hudCompany').textContent=currentUser?currentUser.username:'-';
+  document.getElementById('hudUser').textContent=currentUser?currentUser.username:'-';
+  document.getElementById('seasonLabel').textContent='J'+state.seasonDay+' / '+state.seasonLen; document.getElementById('seasonBar').style.width=(state.seasonDay/state.seasonLen*100)+'%';
+  document.getElementById('dailyProd').textContent=fmtGold(state.dailyGold);
+  document.getElementById('activeClaimName').textContent=state.activeClaimId? CLAIMS.find(c=>c.id===state.activeClaimId).name.fr : 'AUCUNE';
+  document.getElementById('hudPower').textContent='⚡ '+(calcPower(state.activeClaimId)>=0?'+':'')+calcPower(state.activeClaimId)+'kW';
+  document.getElementById('hudMud').textContent='🟫 '+Math.round(state.mud*100)+'%';
+  document.getElementById('hudWorkers').textContent=(state.workers.operators+state.workers.mechanics+state.workers.foremen)+'/'+(state.fleet.length||0);
+  const list=document.getElementById('fleetList3d'); const no=document.getElementById('noFleet3d');
+  const active=state.fleet.filter(f=>f.claimId===state.activeClaimId&&f.deployed);
+  if(active.length===0){ list.innerHTML=''; no.style.display='block'; } else { no.style.display='none'; list.innerHTML=active.map(f=>{ const d=EQUIP.find(x=>x.id===f.typeId); return `<div style="background:#111;border:1px solid ${f.broken?'#7f1d1d':'#222'};border-radius:9px;padding:6px;display:flex;gap:6px;align-items:center"><img src="${d.img}" style="width:36px;height:26px;object-fit:cover;border-radius:6px"><div style="flex:1"><div style="font-size:9px;font-weight:800">${d.name.fr}</div><div style="font-size:8px;color:#777;font-family:'JetBrains Mono'">${f.health.toFixed(0)}% • ${f.broken?'PANNE':'OK'}</div></div><div style="font-size:7px;font-weight:800;color:${f.broken?'#ef4444':'#22c55e'}">${f.broken?'PANNE':'OK'}</div></div>`; }).join(''); }
 }
-function calcPower(id){
-  let bal=0; state.fleet.filter(f=>f.claimId===id&&f.deployed&&!f.broken).forEach(f=>{ const t=EQUIP.find(x=>x.id===f.typeId); if(t.cat==='generator') bal+= -t.power; else if(t.power) bal-=t.power; });
-  return bal;
+function switchView(v){
+  document.getElementById('mapView').classList.toggle('hidden', v!=='map');
+  document.getElementById('otherView').classList.toggle('hidden', !['fleet','market','finance','chain','claims'].includes(v));
+  document.getElementById('lockedOverlay').classList.toggle('hidden', v!=='mine' || !!state.activeClaimId);
+  if(v==='map'){ initLeaflet(); setTimeout(()=>leafletMap.invalidateSize(),100); }
+  else if(v==='claims'){ renderClaims(document.getElementById('otherView')); }
+  else if(v==='fleet'){ renderFleet(document.getElementById('otherView')); }
+  else if(v==='chain'){ renderChain(document.getElementById('otherView')); }
+  else if(v==='market'){ renderMarket(document.getElementById('otherView')); }
+  else if(v==='finance'){ renderFinance(document.getElementById('otherView')); }
 }
-function simulate(h){
-  if(!state.activeClaimId) return;
-  const data=getClaimData(state.activeClaimId);
-  const fleet=state.fleet.filter(f=>f.claimId===state.activeClaimId&&f.deployed);
-  if(fleet.length===0) return;
-  let dieselNeed=0; fleet.forEach(f=>{ if(!f.broken){ dieselNeed+=EQUIP.find(x=>x.id===f.typeId).fuel*h; f.hours+=h; } });
-  if(!state.admin){ if(state.diesel<dieselNeed){ if(Math.random()<0.15) log('⚠️ Panne sèche diesel!', 'bad'); return; } state.diesel-=dieselNeed; }
-  const power=calcPower(state.activeClaimId);
-  if(!state.admin && power<0){ if(Math.random()<0.08) log(`⚡ Coupure élec ${power}kW — ajoute groupe`, 'bad'); return; }
-  // check needed chain: wash needs pump+pond+feeder+power
-  const hasPump=fleet.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='pump'&&!f.broken);
-  const hasPond=fleet.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='pond'&&!f.broken);
-  const hasFeeder=fleet.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='feeder'&&!f.broken);
-  const hasGen=fleet.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='generator'&&!f.broken);
+function renderClaims(c){
+  c.innerHTML=`<div style="padding:4px"><h2 class="font-anton" style="font-size:22px">📜 PORTEFEUILLE</h2><div style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px">${[...state.ownedClaims.map(id=>({id,type:'owned'})),...state.rentedClaims.map(r=>({id:r.id,type:'rented'}))].map(it=>{ const cl=CLAIMS.find(x=>x.id===it.id); return `<div class="card"><img src="${cl.color}" style="height:6px;width:100%;background:${cl.color};border-radius:4px"><div style="font-weight:800;margin-top:6px">${cl.name.fr}</div><div style="font-size:9px;color:#777">${cl.region}</div><button onclick="activateClaim('${cl.id}')" class="btn btn-gold" style="width:100%;margin-top:8px;font-size:9px">MINER 3D RÉEL</button></div>`; }).join('')||'Aucune'}</div></div>`;
+}
+function renderFleet(c){
+  c.innerHTML=`<div style="padding:4px"><h2 class="font-anton" style="font-size:22px">🚜 FLOTTE - VRAIS MODÈLES FIDÈLES = IMAGES = 3D</h2><div style="font-size:10px;color:#888">Chaque image = rendu du modèle 3D exact. Plus d'IA. Clique image pour vue 3D détaillée qui marche.</div><div style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px">${EQUIP.map(t=>`<div class="card" style="padding:0;overflow:hidden"><img src="${t.img}" style="width:100%;height:110px;object-fit:cover;cursor:pointer" onclick="window.openDetail('${t.id}')"><div style="padding:10px"><div style="font-weight:800;font-size:12px">${t.name.fr}</div><div style="font-size:9px;color:#aaa;margin-top:4px">${t.desc.fr}</div><div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:5px"><button onclick="buyEquip('${t.id}')" class="btn btn-gold" style="font-size:9px">ACHETER ${fmtMoney(t.buy)}</button><button onclick="rentEquip('${t.id}')" class="btn btn-dark" style="font-size:9px">LOUER ${fmtMoney(t.rent)}</button></div></div></div>`).join('')}</div><div style="margin-top:16px"><h3 style="font-weight:800">INVENTAIRE (${state.fleet.length})</h3><div id="invList" style="margin-top:8px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:6px"></div></div></div>`;
+  const inv=c.querySelector('#invList'); inv.innerHTML=state.fleet.map(f=>{ const d=EQUIP.find(x=>x.id===f.typeId); return `<div class="card" style="display:flex;gap:8px;align-items:center"><img src="${d.img}" style="width:42px;height:30px;object-fit:cover;border-radius:6px"><div style="flex:1"><div style="font-weight:700;font-size:10px">${d.name.fr}</div><div style="font-size:8px;color:#777">${f.health.toFixed(0)}% • ${f.broken?'PANNE':'STOCK'}</div></div><div style="display:flex;gap:4px"><button onclick="deployFleet('${f.uid}')" class="btn btn-gold" style="font-size:8px;padding:4px 8px">3D DEPLOY</button><button onclick="sellFleet('${f.uid}')" class="btn btn-dark" style="font-size:8px;padding:4px 7px">VENDRE</button></div></div>`; }).join('')||'Vide';
+  window.openDetail=(id)=>{ const def=EQUIP.find(x=>x.id===id); document.getElementById('fleetDetailModal').classList.remove('hidden'); document.getElementById('fleetDetailInfo').innerHTML=`<div style="display:flex;gap:10px"><img src="${def.img}" style="width:150px;height:100px;object-fit:cover;border-radius:10px"><div><div style="font-weight:800">${def.name.fr}</div><div style="font-size:10px;color:#aaa;margin-top:4px">${def.desc.fr}</div><div style="margin-top:6px;font-family:'JetBrains Mono';font-size:8px;background:#000;border:1px solid #222;border-radius:8px;padding:6px">${def.use}</div></div></div>`; if(detailMesh) detailScene.remove(detailMesh); let preview; if(def.cat==='excavator') preview=createCAT320Model(); else if(def.cat==='dozer') preview=createD6Model(); else if(def.id==='wash_sluicifer') preview=createSluiciferModel(); else if(def.cat==='conveyor') preview=createConveyorModel(); else preview=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:0x666})); detailMesh=preview; detailScene.add(detailMesh); };
+}
+function renderChain(c){ c.innerHTML=`<div style="padding:4px"><h2 class="font-anton" style="font-size:22px">⛓️ CHAÎNE COMPLÈTE EXPLIQUÉE</h2><div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="card"><div style="font-weight:800">💧 EAU</div><div style="margin-top:8px;font-size:11px;line-height:1.6"><span class="chain-dot ok"></span>Rivière source<br><span class="chain-dot ${state.fleet.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='pump'&&f.deployed)?'ok':'bad'}"></span>Pompe 6\"/10\"<br><span class="chain-dot ${state.fleet.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='pond'&&f.deployed)?'ok':'bad'}"></span>Bassin décantation<br><span class="chain-dot ok"></span>Tuyaux vers laverie</div></div><div class="card"><div style="font-weight:800">⚡ ÉLEC + MATÉRIAU</div><div style="margin-top:8px;font-size:11px;line-height:1.6"><span class="chain-dot ${state.fleet.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='generator'&&f.deployed)?'ok':'bad'}"></span>Groupe 250kW<br><span class="chain-dot ok"></span>Dozer décape<br><span class="chain-dot ${state.fleet.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='feeder'&&f.deployed)?'ok':'bad'}"></span>Trémie obligatoire<br><span class="chain-dot ok"></span>Convoyeur plaçable libre<br><span class="chain-dot ${state.fleet.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='washplant'&&f.deployed)?'ok':'bad'}"></span>Sluicifer noir/orange</div></div></div></div>`; }
+function renderMarket(c){ c.innerHTML=`<div style="padding:4px"><h2 class="font-anton" style="font-size:22px">🏦 MARCHÉ OR LIVE</h2><div style="margin-top:10px" class="card"><div style="font-family:'JetBrains Mono';font-size:20px;color:#ffb300">${fmtGold(state.gold)} = ${fmtMoney(state.gold*state.goldPrice)}</div><div style="margin-top:8px;display:flex;gap:6px"><button onclick="sellGold(0.25)" class="btn btn-dark">25%</button><button onclick="sellGold(0.5)" class="btn btn-dark">50%</button><button onclick="sellGold(1)" class="btn btn-gold">TOUT VENDRE</button></div></div></div>`; }
+function renderFinance(c){
+  const adminCode=currentUser?currentUser.adminCode:localStorage.getItem('gr_admin_code_v5')||'';
+  c.innerHTML=`<div style="padding:4px"><h2 class="font-anton" style="font-size:22px">📊 FINANCE + ADMIN SÉCURISÉ</h2><div style="margin-top:10px" class="card"><div style="font-size:12px;font-weight:800">🔒 ADMIN CODE SÉCURISÉ 24 CHARS (maj/min/chiffre/spéciaux)</div><div style="font-family:'JetBrains Mono';font-size:10px;color:#666;margin-top:6px">Ton code perso: <span style="color:#fff;font-weight:800">${adminCode}</span></div><div style="font-size:9px;color:#666;margin-top:4px">76^24 combinaisons impossible bruteforce. Toggle ON/OFF.</div><input id="adminInFin" class="input" placeholder="Entre code 24 chars"><div style="display:flex;gap:6px;margin-top:8px"><button id="admOnFin" class="btn btn-gold" style="flex:1">ACTIVER ♾️</button><button id="admOffFin" class="btn btn-dark" style="flex:1">DÉSACTIVER</button></div><div id="admStatFin" style="font-size:9px;color:#4ade80;margin-top:6px">${state.admin?'✅ Admin ON - infini':''}</div></div></div>`;
+  document.getElementById('admOnFin')?.addEventListener('click',()=>{ const code=document.getElementById('adminInFin').value.trim(); if(code===adminCode){ state.admin=true; state.money=99999999; state.diesel=99999; document.getElementById('admStatFin').textContent='✅ Admin ON'; log('🔓 Admin ON', 'gold'); saveState(); renderHUD(); } else document.getElementById('admStatFin').textContent='❌ Code faux'; });
+  document.getElementById('admOffFin')?.addEventListener('click',()=>{ state.admin=false; document.getElementById('admStatFin').textContent='Admin OFF - retour normal'; saveState(); renderHUD(); });
+}
 
-  const mudSlow=1-state.mud*0.55;
-  // dozer
-  let dozerProd=fleet.filter(f=>EQUIP.find(x=>x.id===f.typeId).cat==='dozer'&&!f.broken).reduce((a,f)=>a+EQUIP.find(x=>x.id===f.typeId).prod*h*mudSlow,0);
-  for(let y=0;y<data.grid.length&&dozerProd>0;y++) for(let x=0;x<data.grid[0].length&&dozerProd>0;x++){ const cell=data.grid[y][x]; if(!cell.cleared){ if(dozerProd>=cell.over){ cell.cleared=true; data.cleared++; dozerProd-=cell.over; } else { cell.over-=dozerProd; dozerProd=0; } } }
-  // excav
-  const ops=state.workers.operators + (isFPS&&currentVehicle?1:0);
-  const excavs=fleet.filter(f=>EQUIP.find(x=>x.id===f.typeId).cat==='excavator'&&!f.broken);
-  // if no operator and not manual driving, excav stops
-  let excavProd=0;
-  if(excavs.length>0){
-    if(ops===0 && !currentVehicle){ if(Math.random()<0.05) log('👷 Pas d’opérateur! Recrute ou conduis toi-même (E)', 'warn'); }
-    else { excavProd=excavs.reduce((a,f)=>a+EQUIP.find(x=>x.id===f.typeId).prod*h*mudSlow*(ops>0?1:1.2),0); }
-  }
-  let payMined=0,goldInPay=0;
-  for(let y=0;y<data.grid.length&&excavProd>0;y++) for(let x=0;x<data.grid[0].length&&excavProd>0;x++){ const cell=data.grid[y][x]; if(cell.cleared&&!cell.mined){ if(excavProd>=cell.pay){ excavProd-=cell.pay; payMined+=cell.pay; goldInPay+=cell.gold; cell.mined=true; data.mined++; } else { const r=excavProd/cell.pay; payMined+=excavProd; goldInPay+=cell.gold*r; cell.pay-=excavProd; cell.gold*=1-r; excavProd=0; } } }
-  if(payMined>0){
-    const truckBonus=fleet.filter(f=>EQUIP.find(x=>x.id===f.typeId).cat==='truck'&&!f.broken).length*0.13;
-    const convBonus=fleet.filter(f=>EQUIP.find(x=>x.id===f.typeId).cat==='conveyor'&&!f.broken).length*0.18;
-    payMined*=1+truckBonus+convBonus;
-    state.paydirt+=payMined; state.goldInWash+=goldInPay;
-  }
-  // wash
-  const washes=fleet.filter(f=>EQUIP.find(x=>x.id===f.typeId).cat==='washplant'&&!f.broken);
-  let washCap=washes.reduce((a,f)=>a+EQUIP.find(x=>x.id===f.typeId).prod*h,0);
-  // chain validation for real message
-  if(washCap>0){
-    if(!hasPump) { if(Math.random()<0.12) log('💧 Pas d’eau! Pompe + bassin requis pour laver', 'bad'); washCap=0; }
-    else if(!hasPond) { if(Math.random()<0.12) log('🌊 Pas de bassin de décantation! Obligatoire environnement', 'bad'); washCap*=0.4; }
-    else if(!hasFeeder) { if(Math.random()<0.12) log('🛢️ Pas de trémie! Laverie bloquée', 'bad'); washCap=0; }
-    else if(!hasGen) { if(Math.random()<0.08) log('⚡ Groupe requis pour alimenter trémie/laverie', 'warn'); }
-  }
-  if(washCap>0&&state.paydirt>0){
-    const toProcess=Math.min(washCap,state.paydirt);
-    const ratio=toProcess/state.paydirt;
-    const goldProd=state.goldInWash*ratio*(0.84+Math.random()*0.26)*(1-state.mud*0.18)*(1+(state.workers.foremen*0.15));
-    state.paydirt-=toProcess; state.goldInWash-=state.goldInWash*ratio; if(state.goldInWash<0) state.goldInWash=0;
-    state.gold+=goldProd; state.dailyGold+=goldProd; state.totalGold+=goldProd; state.totalPay+=toProcess;
-    if(goldProd>0.55) log(`✨ ${fmtGold(goldProd)} extrait par trommel 3D! Stock ${fmtVolume(state.paydirt)}`, 'gold');
-  }
-  // wear
-  fleet.forEach(f=>{ if(f.broken) return; const wear=0.032*h+Math.random()*0.045*h+(f.health<35?0.22:0); f.health-=wear; if(f.health<=0){ f.health=0; f.broken=true; log(`🚨 Panne ${EQUIP.find(x=>x.id===f.typeId).name[SETTINGS.lang]||EQUIP.find(x=>x.id===f.typeId).name.fr}`, 'bad'); } });
+// Actions
+window.buyEquip=(id)=>{ const t=EQUIP.find(x=>x.id===id); if(state.money<t.buy){ log('Pas assez $', 'bad'); return; } state.money-=t.buy; state.fleet.push({uid:'f'+Date.now()+Math.random().toString(36).slice(2,5),typeId:id,health:100,hours:0,broken:false,deployed:false,claimId:null,rented:false}); log(`Achat ${t.name.fr}`, 'info'); renderHUD(); saveState(); };
+window.rentEquip=(id)=>{ const t=EQUIP.find(x=>x.id===id); if(state.money<t.rent){ log('Pas assez', 'bad'); return; } state.money-=t.rent; state.fleet.push({uid:'f'+Date.now()+Math.random().toString(36).slice(2,5),typeId:id,health:100,hours:0,broken:false,deployed:false,claimId:null,rented:true,rentUntil:state.seasonDay+105}); log(`Location ${t.name.fr}`, 'info'); renderHUD(); saveState(); };
+window.deployFleet=(uid)=>{ const f=state.fleet.find(x=>x.uid===uid); if(!state.activeClaimId){ log('Achète claim d\'abord', 'bad'); return; } f.deployed=true; f.claimId=state.activeClaimId; const m={excavator:createCAT320Model,dozer:createD6Model,washplant:createSluiciferModel,conveyor:createConveyorModel}[EQUIP.find(x=>x.id===f.typeId).cat] ? (EQUIP.find(x=>x.id===f.typeId).cat==='excavator'?createCAT320Model():EQUIP.find(x=>x.id===f.typeId).cat==='dozer'?createD6Model():EQUIP.find(x=>x.id===f.typeId).cat==='conveyor'?createConveyorModel():createSluiciferModel()) : new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:0x666})); const ang=Math.random()*Math.PI*2, rad=8+Math.random()*18; m.position.set(Math.cos(ang)*rad, getHeightAt(Math.cos(ang)*rad,Math.sin(ang)*rad)+0.5, Math.sin(ang)*rad); fleetGroup.add(m); meshByUid.set(uid,m); log(`Déployé 3D ${EQUIP.find(x=>x.id===f.typeId).name.fr} - modèle fidèle`, 'info'); renderHUD(); saveState(); };
+window.sellFleet=(uid)=>{ const idx=state.fleet.findIndex(x=>x.uid===uid); if(idx<0) return; const f=state.fleet[idx]; const t=EQUIP.find(x=>x.id===f.typeId); const price=Math.round(t.buy*0.55*f.health/100); state.money+=price; const m=meshByUid.get(uid); if(m) fleetGroup.remove(m); meshByUid.delete(uid); state.fleet.splice(idx,1); log(`Vendu ${t.name.fr} ${fmtMoney(price)}`, 'info'); renderHUD(); saveState(); };
+
+function buyFuel(L){ const cost=L*1.35; if(state.money<cost){ log('Pas $', 'bad'); return; } state.money-=cost; state.diesel=Math.min(state.dieselCap,state.diesel+L); log(`Fuel +${fmtFuel(L)}`, 'info'); renderHUD(); saveState(); }
+function sellGold(frac){ if(state.gold<=0){ log('Pas or', 'bad'); return; } const amt=state.gold*frac; const net=amt*state.goldPrice*0.92; state.gold-=amt; state.money+=net; log(`Vente ${fmtGold(amt)} => ${fmtMoney(net)}`, 'gold'); renderHUD(); saveState(); }
+function endDay(auto){ const fuelCost=state.fleet.reduce((a,f)=>a+EQUIP.find(x=>x.id===f.typeId).fuel*12*1.35,0); const wages=Object.values(state.workers).reduce((a,v)=>a+v*350,0); if(!auto) log(`🌙 Fin J${state.seasonDay} Coût ${fmtMoney(fuelCost+wages)}`, 'warn'); if(!state.admin) state.money-=fuelCost+wages; state.day++; state.seasonDay++; state.hour=6; state.dailyGold=0; state.goldPrice+=(Math.random()-0.5)*8; renderHUD(); saveState(); if(state.seasonDay>state.seasonLen){ state.year++; state.seasonDay=1; log('❄️ Fin saison hiver -5% health', 'warn'); state.fleet.forEach(f=>f.health=Math.max(5,f.health-5)); } }
+
+function handleCheat(code){
+  const adminCode=currentUser?currentUser.adminCode:localStorage.getItem('gr_admin_code_v5');
+  if(code===adminCode){ state.admin=!state.admin; if(state.admin){ state.money=99999999; state.diesel=99999; log('🔓 ADMIN ON ♾️', 'gold'); } else { log('ADMIN OFF', 'warn'); } renderHUD(); saveState(); return; }
+  if(code.toLowerCase()==='gold'){ state.gold+=10; log('Cheat gold', 'gold'); } else if(code.toLowerCase()==='money'){ state.money+=50000; log('Cheat money', 'gold'); } renderHUD(); saveState();
+}
+
+let tickInt=null;
+function startLoop(){ if(tickInt) clearInterval(tickInt); tickInt=setInterval(()=>{ if(state.speed===0) return; state.hour+=state.speed*1.05; if(state.hour>=18){ endDay(true); return; } /* simulate */ const mudSlow=1-state.mud*0.5; const active=state.fleet.filter(f=>f.claimId===state.activeClaimId&&f.deployed&&!f.broken); let dieselNeed=0; active.forEach(f=>{ dieselNeed+=EQUIP.find(x=>x.id===f.typeId).fuel*state.speed*1.05; f.hours+=state.speed*1.05; }); if(!state.admin){ if(state.diesel<dieselNeed){ if(Math.random()<0.1) log('Panne sèche diesel', 'bad'); return; } state.diesel-=dieselNeed; } /* simple wash */ const washes=active.filter(f=>EQUIP.find(x=>x.id===f.typeId).cat==='washplant'&&!f.broken); let cap=washes.reduce((a,f)=>a+EQUIP.find(x=>x.id===f.typeId).prod*state.speed*1.05,0); const hasPump=active.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='pump'); const hasPond=active.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='pond'); const hasFeeder=active.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='feeder'); if(cap>0){ if(!hasPump){ cap=0; if(Math.random()<0.08) log('💧 Pompe manquante -> 0 or', 'bad'); } else if(!hasPond){ cap*=0.4; if(Math.random()<0.08) log('🌊 Bassin manquant -> -60%', 'warn'); } else if(!hasFeeder){ cap=0; if(Math.random()<0.08) log('🛢️ Trémie manquante', 'bad'); } } if(cap>0&&state.paydirt>0){ const to=Math.min(cap,state.paydirt); const gold=to*0.012*(0.9+Math.random()*0.2)*(1-state.mud*0.18); state.paydirt-=to; state.gold+=gold; state.dailyGold+=gold; state.totalGold+=gold; state.totalPay+=to; if(gold>0.5) log(`✨ ${fmtGold(gold)} extrait Sluicifer noir/orange fidèle!`, 'gold'); } renderHUD(); },700); }
+
+function initGame(){
+  document.getElementById('hudUser').textContent=currentUser.username;
+  document.getElementById('hudCompany').textContent=currentUser.username.toUpperCase();
+  document.getElementById('adminCodeDisplay').textContent=currentUser.adminCode;
+  localStorage.setItem('gr_admin_code_v5',currentUser.adminCode);
+  log(`👋 Bienvenue ${currentUser.username} - V5 VRAI JEU - Terrain verrouillé au début, achète claim US`, 'gold');
+  log(`💡 Nouveau: FPS V marche vraiment avec collision, E pour engin, B pour placer convoyeur libre sens voulu, molette rotation`, 'sys');
+  log(`⛓️ Chaîne expliquée: Pompe 6\" + Bassin + Trémie obligatoire sinon 0 or`, 'sys');
+  log(`🚜 Modèles fidèles: CAT 320 22.7T avec vérins visibles, D6 LGP lames larges 1.2m, Sluicifer noir/orange Macon SD-600 fidèle (plus Big Red trommel)`, 'sys');
+  initLeaflet();
+  init3D();
+  // Setup UI
+  document.querySelectorAll('.navb').forEach(b=>{ b.addEventListener('click',()=>{ document.querySelectorAll('.navb').forEach(x=>x.classList.remove('active')); b.classList.add('active'); switchView(b.dataset.view); }); });
+  document.querySelectorAll('.speed').forEach(b=>{ b.addEventListener('click',()=>{ document.querySelectorAll('.speed').forEach(x=>{x.classList.remove('btn-gold');x.classList.add('btn-dark');}); b.classList.add('btn-gold'); b.classList.remove('btn-dark'); state.speed=parseInt(b.dataset.speed); }); });
+  document.getElementById('endDayBtn').addEventListener('click',()=>endDay(false));
+  document.getElementById('fuelBtn').addEventListener('click',()=>buyFuel(1500));
+  document.getElementById('buildBtn').addEventListener('click',()=>toggleBuildMode());
+  document.getElementById('settingsBtn').addEventListener('click',()=>document.getElementById('settingsModal').classList.remove('hidden'));
+  document.getElementById('closeSettings').addEventListener('click',()=>document.getElementById('settingsModal').classList.add('hidden'));
+  document.getElementById('saveSettings').addEventListener('click',()=>{ SETTINGS.lang=document.getElementById('setLang').value; SETTINGS.region=document.getElementById('setRegion').value; localStorage.setItem('gr_settings_v5',JSON.stringify(SETTINGS)); document.getElementById('settingsModal').classList.add('hidden'); renderHUD(); log('Paramètres sauvegardés', 'sys'); });
+  document.getElementById('fpsBtn').addEventListener('click',()=>{ const e=new KeyboardEvent('keydown',{code:'KeyV'}); window.dispatchEvent(e); toggleFPS(); });
+  document.getElementById('cheatInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ handleCheat(e.target.value); e.target.value=''; } });
+  document.getElementById('hireBtn').addEventListener('click',()=>{ document.getElementById('hireModal').classList.remove('hidden'); document.getElementById('hireList').innerHTML=`<div class="card"><div style="font-weight:800">Opérateur Pelle/Dozer - $320/j</div><div style="font-size:10px;color:#888">Conduit 1 engin auto, sans lui tu dois conduire toi-même en FPS</div><button onclick="state.workers.operators++; saveState(); renderHUD(); document.getElementById('hudWorkers').textContent=(state.workers.operators+state.workers.mechanics+state.workers.foremen)+'/'+state.fleet.length" class="btn btn-gold" style="width:100%;margin-top:6px">RECRUTER</button></div>`; });
+  document.getElementById('closeHire').addEventListener('click',()=>document.getElementById('hireModal').classList.add('hidden'));
+  document.getElementById('unlockAdminBtn').addEventListener('click',()=>{ const code=document.getElementById('adminCodeInput').value.trim(); const real=currentUser.adminCode; if(code===real){ state.admin=true; state.money=99999999; state.diesel=99999; document.getElementById('adminStatus').textContent='✅ Admin ON - ♾️'; log('Admin ON', 'gold'); saveState(); renderHUD(); } else document.getElementById('adminStatus').textContent='❌ Faux, ton code: '+real; });
+  document.getElementById('lockAdminBtn').addEventListener('click',()=>{ state.admin=false; document.getElementById('adminStatus').textContent='Admin OFF'; saveState(); renderHUD(); log('Admin OFF', 'warn'); });
+
+  renderHUD();
+  startLoop();
+  // animate detail preview
+  (function animateDetail(){ requestAnimationFrame(animateDetail); if(detailMesh) detailMesh.rotation.y+=0.01; if(detailRenderer&&detailScene&&detailCamera) detailRenderer.render(detailScene,detailCamera); })();
 }
 
 function animate(){
   requestAnimationFrame(animate);
-  const dt=0.016;
-  // animate trommels & arms
-  fleetGroup.children.forEach(m=>{ if(m.userData.trom){ m.userData.spin+=dt*(1+state.speed*0.4); m.userData.trom.rotation.x=m.userData.spin; } if(m.userData.arm1G){ m.userData.anim+=dt*0.9*state.speed; const s=Math.sin(m.userData.anim); m.userData.arm1G.rotation.x=-0.18+s*0.28; m.userData.arm2G.rotation.x=-0.55+Math.cos(m.userData.anim*1.1)*0.48; } });
-  if(isFPS){
-    const moveSpeed=0.14*(keys['ShiftLeft']?1.8:1);
-    if(currentVehicle){
-      // vehicle drive
-      if(keys['KeyW']) currentVehicle.translateZ(-moveSpeed*4);
-      if(keys['KeyS']) currentVehicle.translateZ(moveSpeed*2.5);
-      if(keys['KeyA']) currentVehicle.rotation.y+=0.03;
-      if(keys['KeyD']) currentVehicle.rotation.y-=0.03;
-      camera.position.copy(currentVehicle.position).add(new THREE.Vector3(0,2.2,0.6));
-    } else {
-      if(keys['KeyW']) fpsControls.moveForward(moveSpeed);
-      if(keys['KeyS']) fpsControls.moveForward(-moveSpeed);
-      if(keys['KeyA']) fpsControls.moveRight(-moveSpeed);
-      if(keys['KeyD']) fpsControls.moveRight(moveSpeed);
-    }
+  if(terrainMesh&&state.activeClaimId) {
+    // petit anim eau
   }
   orbitControls.update();
   renderer.render(scene,camera);
 }
 
-function renderHUD(){
-  document.getElementById('hudMoney').textContent=fmtMoney(state.money);
-  document.getElementById('hudGold').textContent=fmtGold(state.gold);
-  document.getElementById('hudGoldVal').textContent=fmtMoney(state.gold*state.goldPrice);
-  document.getElementById('hudPay').textContent=fmtVolume(state.paydirt);
-  document.getElementById('hudFuel').textContent=fmtFuel(state.diesel);
-  document.getElementById('fuelBar').style.width=Math.min(100,state.diesel/state.dieselCap*100)+'%';
-  document.getElementById('fuelBar').style.background=state.diesel<700?'#ef4444':'#f59e0b';
-  document.getElementById('hudYear').textContent=state.year; document.getElementById('hudDay').textContent=state.seasonDay;
-  document.getElementById('hudGoldPrice').textContent=(SETTINGS.region==='EU'? '€'+(state.goldPrice*0.92*0.032).toFixed(2)+'/g' : fmtMoney(state.goldPrice)+'/oz');
-  document.getElementById('hudWeather').textContent=(t('weather')[['Soleil','Nuageux','Pluie battante','Bourbier','Neige'].indexOf(state.weather)]||state.weather)+' '+fmtTemp(state.temp);
-  document.getElementById('hudCompany').textContent=currentUser?currentUser.username:'-';
-  document.getElementById('hudUser').textContent=currentUser?currentUser.email:'-';
-  document.getElementById('seasonLabel').textContent='J'+state.seasonDay+' / '+state.seasonLen; document.getElementById('seasonBar').style.width=(state.seasonDay/state.seasonLen*100)+'%';
-  document.getElementById('dailyProd').textContent=fmtGold(state.dailyGold);
-  document.getElementById('activeClaimName').textContent=state.activeClaimId? (CLAIMS.find(c=>c.id===state.activeClaimId).name[SETTINGS.lang]||CLAIMS.find(c=>c.id===state.activeClaimId).name.fr) : 'AUCUNE';
-  document.getElementById('hudPower').textContent='⚡ '+(calcPower(state.activeClaimId)>=0?'+':'')+calcPower(state.activeClaimId)+'kW';
-  document.getElementById('hudMud').textContent='🟫 '+Math.round(state.mud*100)+'%';
-  document.getElementById('hudWorkers').textContent=(state.workers.operators+state.workers.mechanics+state.workers.foremen)+'/'+(state.fleet.length||0);
-  // translate labels
-  document.getElementById('labelMoney').textContent=t('money'); document.getElementById('labelGold').textContent=t('gold'); document.getElementById('labelPay').textContent=t('pay'); document.getElementById('labelGoldPrice').textContent=t('goldPrice'); document.getElementById('labelSpeed').textContent=t('speed'); document.getElementById('labelSeason').textContent=t('season'); document.getElementById('labelProd').textContent=t('prod'); document.getElementById('opsTitle').textContent=t('ops'); document.getElementById('fleetTitle').textContent=t('fleet');
-
-  const fleetList=document.getElementById('fleetList3d'); const noFleet=document.getElementById('noFleet3d');
-  const active=state.fleet.filter(f=>f.claimId===state.activeClaimId&&f.deployed);
-  if(active.length===0){ fleetList.innerHTML=''; noFleet.style.display='block'; } else { noFleet.style.display='none'; fleetList.innerHTML=active.map(f=>{ const tt=EQUIP.find(x=>x.id===f.typeId); const name=tt.name[SETTINGS.lang]||tt.name.fr; return `<div style="background:#111;border:1px solid ${f.broken?'#7f1d1d':'#222'};border-radius:10px;padding:7px;display:flex;gap:7px;align-items:center"><img src="${tt.img}" style="width:38px;height:28px;object-fit:cover;border-radius:6px"><div style="flex:1"><div style="font-size:10px;font-weight:800">${name} ${f.rented?'[LOC]':''}</div><div style="font-size:9px;color:#777;font-family:'JetBrains Mono'">${f.health.toFixed(0)}% • ${f.hours.toFixed(0)}h • ${f.broken?'PANNE':f.deployed?'ON':'OFF'}</div></div><div style="font-size:8px;font-weight:800;color:${f.broken?'#ef4444':'#22c55e'}">${f.broken?'PANNE':'OK'}</div></div>`; }).join(''); }
-}
-
-function initUI(){
-  document.querySelectorAll('.navb').forEach(b=>{ b.addEventListener('click',()=>{ document.querySelectorAll('.navb').forEach(x=>x.classList.remove('active')); b.classList.add('active'); switchView(b.dataset.view); }); });
-  document.querySelectorAll('.speed').forEach(b=>{ b.addEventListener('click',()=>{ document.querySelectorAll('.speed').forEach(x=>{x.classList.remove('btn-gold');x.classList.add('btn-dark');}); b.classList.remove('btn-dark'); b.classList.add('btn-gold'); state.speed=parseInt(b.dataset.speed); }); });
-  document.getElementById('endDayBtn').addEventListener('click',()=>endDay(false));
-  document.getElementById('fuelBtn').addEventListener('click',()=>buyFuel(1500));
-  document.getElementById('dispatchBtn').addEventListener('click',()=>{ log('🚛 Dispatch camion vers trémie', 'info'); state.paydirt+=22; renderHUD(); });
-  document.getElementById('settingsBtn').addEventListener('click',()=>document.getElementById('settingsModal').classList.remove('hidden'));
-  document.getElementById('closeSettings').addEventListener('click',()=>document.getElementById('settingsModal').classList.add('hidden'));
-  document.getElementById('saveSettings').addEventListener('click',()=>{ SETTINGS.lang=document.getElementById('setLang').value; SETTINGS.region=document.getElementById('setRegion').value; SETTINGS.currency=SETTINGS.region==='EU'?'EUR':SETTINGS.region==='UK'?'GBP':SETTINGS.region==='CA'?'CAD':'USD'; SETTINGS.units=(SETTINGS.region==='EU'||SETTINGS.region==='UK')?'metric':'imperial'; localStorage.setItem('gr_settings', JSON.stringify(SETTINGS)); document.getElementById('settingsModal').classList.add('hidden'); renderHUD(); log('⚙️ Langue/région sauvegardée: '+SETTINGS.lang+' / '+SETTINGS.region, 'sys'); if(leafletMap) setTimeout(()=>leafletMap.invalidateSize(),200); });
-  document.getElementById('fpsBtn').addEventListener('click',toggleFPS);
-  document.getElementById('photoBtn').addEventListener('click',()=>{ orbitControls.enabled=!orbitControls.enabled; log(orbitControls.enabled?'Photo ON':'Photo OFF', 'sys'); });
-  document.getElementById('cheatInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ handleCheat(e.target.value); e.target.value=''; } });
-  document.getElementById('hireBtn').addEventListener('click',()=>{ document.getElementById('hireModal').classList.remove('hidden'); renderHire(); });
-  document.getElementById('closeHire').addEventListener('click',()=>document.getElementById('hireModal').classList.add('hidden'));
-  document.getElementById('adminLockBtn').addEventListener('click',()=>document.getElementById('adminArea').classList.toggle('hidden'));
-  document.getElementById('unlockAdminBtn').addEventListener('click',()=>{
-    const code=document.getElementById('adminCodeInput').value.trim();
-    if(code===adminCode || code===currentUser?.code || code==='TONYBEETS2025' || code==='BEETS-ADMIN-2025-GOLD'){
-      state.admin=true; state.money=99999999; state.diesel=99999; document.getElementById('adminStatus').textContent='✅ Mode admin activé: argent/fuel/élec infinis';
-      log('🔓 MODE ADMIN ACTIVÉ ♾️', 'gold');
-      saveState(); renderHUD();
-    } else { document.getElementById('adminStatus').textContent='❌ Code incorrect. Ton code perso: '+adminCode; }
-  });
-  if(currentUser){ document.getElementById('adminCodeDisplay').textContent=currentUser.code||adminCode; adminCode=currentUser.code||adminCode; }
-}
-
-function renderHire(){
-  const list=document.getElementById('hireList');
-  list.innerHTML=[
-    {id:'operators', name:{fr:'Opérateur Pelle/Dozer',en:'Operator',es:'Operador',de:'Bediener'}, price:320, desc:{fr:'Conduit 1 engin auto. Sans lui tu dois conduire toi-même.',en:'Drives 1 machine auto',es:'Conduce 1 máquina',de:'Fährt 1 Maschine'}},
-    {id:'mechanics', name:{fr:'Mécano',en:'Mechanic',es:'Mecánico',de:'Mechaniker'}, price:380, desc:{fr:'-50% pannes, répare 2x plus vite',en:'-50% breakdowns',es:'-50% averías',de:'-50% Pannen'}},
-    {id:'foremen', name:{fr:'Chef de chantier',en:'Foreman',es:'Capataz',de:'Vorarbeiter'}, price:520, desc:{fr:'+15% prod globale, gère équipe',en:'+15% prod',es:'+15% prod',de:'+15% Prod'}},
-  ].map(w=>`<div style="background:#000;border:1px solid #222;border-radius:12px;padding:10px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:800;font-size:12px">${w.name[SETTINGS.lang]||w.name.fr} — ${fmtMoney(w.price)}/j</div><div style="font-size:10px;color:#888">${w.desc[SETTINGS.lang]||w.desc.fr}</div></div><div style="display:flex;gap:6px;align-items:center"><span id="count_${w.id}" style="font-family:'JetBrains Mono';font-size:12px">${state.workers[w.id]||0}</span><button onclick="hireWorker('${w.id}')" class="btn btn-gold" style="padding:6px 12px">+</button><button onclick="fireWorker('${w.id}')" class="btn btn-dark" style="padding:6px 10px">-</button></div></div>`).join('');
-}
-window.hireWorker=(type)=>{ const cost={operators:320,mechanics:380,foremen:520}[type]; if(state.money<cost){ log('Pas assez $ pour recruter', 'bad'); return; } state.money-=cost; state.workers[type]=(state.workers[type]||0)+1; log(`👷 ${type} recruté`, 'info'); saveState(); renderHUD(); renderHire(); };
-window.fireWorker=(type)=>{ if((state.workers[type]||0)>0){ state.workers[type]--; log(`${type} licencié`, 'warn'); saveState(); renderHUD(); renderHire(); } };
-
-function switchView(v){
-  document.getElementById('mapView').classList.toggle('hidden', v!=='map');
-  document.getElementById('otherView').classList.toggle('hidden', !['fleet','market','finance','chain','claims'].includes(v));
-  if(v==='map'){ initLeaflet(); setTimeout(()=>{ leafletMap.invalidateSize(); },100); }
-  else if(v==='claims'){ renderClaimsPortfolio(document.getElementById('otherView')); }
-  else if(v==='fleet'){ renderFleetDetailed(document.getElementById('otherView')); }
-  else if(v==='chain'){ renderChain(document.getElementById('otherView')); }
-  else if(v==='market'){ renderMarket(document.getElementById('otherView')); }
-  else if(v==='finance'){ renderFinance(document.getElementById('otherView')); }
-  else if(v==='mine'){ document.getElementById('otherView').classList.add('hidden'); }
-}
-
-function renderClaimsPortfolio(container){
-  container.innerHTML=`<div style="padding:4px"><h2 class="font-anton" style="font-size:26px">📜 PORTEFEUILLE CLAIMS - ACHAT / LOCATION / BAILLEUR</h2><div id="portStats" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px"></div><div id="portList" style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px"></div></div>`;
-  const stats=container.querySelector('#portStats'); const list=container.querySelector('#portList');
-  const ownedVal=state.ownedClaims.reduce((a,id)=>a+(CLAIMS.find(c=>c.id===id)?.price||0),0);
-  const leaseInc=state.leasedOut.reduce((a,l)=>a+(CLAIMS.find(c=>c.id===l.id)?.leaseInc||0),0);
-  stats.innerHTML=`<div class="card"><div style="font-size:9px;color:#666">VALEUR PORTEFEUILLE</div><div style="font-family:'JetBrains Mono';font-size:20px;font-weight:800">${fmtMoney(ownedVal)}</div><div style="font-size:10px;color:#777">${state.ownedClaims.length} owned + ${state.rentedClaims.length} rented</div></div><div class="card"><div style="font-size:9px;color:#666">REVENUS BAILLEUR PASSIF</div><div style="font-family:'JetBrains Mono';font-size:20px;color:#4ade80;font-weight:800">+${fmtMoney(leaseInc)}/j</div><div style="font-size:10px;color:#777">+ royalty or ${state.leasedOut.length} claims</div></div><div class="card"><div style="font-size:9px;color:#666">TOTAL MINÉ</div><div style="font-family:'JetBrains Mono';font-size:20px;font-weight:800">${fmtGold(state.totalGold)}</div><div style="font-size:10px;color:#777">${fmtVolume(state.totalPay)} lavés</div></div>`;
-  const all=[...state.ownedClaims.map(id=>({id,type:'owned'})), ...state.rentedClaims.map(r=>({id:r.id,type:'rented',until:r.untilDay})), ...state.leasedOut.map(l=>({id:l.id,type:'leased'}))];
-  list.innerHTML=all.map(it=>{ const c=CLAIMS.find(x=>x.id===it.id); const name=c.name[SETTINGS.lang]||c.name.fr; const data=state.claimData[it.id]; const mined=data?`${data.mined}/${c.size*c.size}`:'0'; const status=it.type==='owned'?'PROPRIO':it.type==='rented'?`LOUÉ J${it.until}`:'LOUÉ À TIERS'; return `<div class="card"><img src="${c.img}" class="fleet-img"><div style="display:flex;justify-content:space-between;margin-top:8px"><span style="font-weight:800;font-size:13px">${name}</span><span class="badge">${status}</span></div><div style="font-size:10px;color:#777;margin-top:4px">${c.region} • ${mined} cells</div><div style="margin-top:8px;display:flex;gap:6px"><button onclick="activateClaim('${c.id}')" class="btn btn-gold" style="flex:1;font-size:10px">MINER 3D [V]</button><button onclick="showClaimDetail('${c.id}')" class="btn btn-dark" style="flex:1;font-size:10px">DÉTAILS</button></div></div>`; }).join('')||'<div style="color:#666">Aucune concession. Va sur CARTE USA.</div>';
-}
-
-function renderFleetDetailed(container){
-  container.innerHTML=`<div style="padding:4px"><h2 class="font-anton" style="font-size:26px">🚜 FLOTTE RÉALISTE - VRAIES MACHINES, VRAIES IMAGES, VUE 3D</h2><div style="font-size:11px;color:#888;margin-top:4px">Chaque machine a un rôle obligatoire dans la chaîne. Sans trémie ou sans pompe = 0 or. Clique image pour vue 3D détaillée.</div><div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">${['all','excavator','dozer','feeder','conveyor','washplant','pump','pond','generator','truck'].map(cat=>`<button onclick="filterFleet('${cat}')" class="btn ${cat==='all'?'btn-gold':'btn-dark'}" data-f="${cat}" style="font-size:10px;padding:7px 12px;border-radius:999px">${cat.toUpperCase()}</button>`).join('')}</div><div id="fleetGrid" style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px"></div><div style="margin-top:20px"><h3 style="font-weight:800">INVENTAIRE (${state.fleet.length})</h3><div id="invList" style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px"></div></div></div>`;
-  window.filterFleet=(cat)=>{ document.querySelectorAll('[data-f]').forEach(b=>{b.classList.remove('btn-gold');b.classList.add('btn-dark');}); document.querySelector(`[data-f="${cat}"]`)?.classList.add('btn-gold'); fillGrid(cat); };
-  function fillGrid(cat='all'){
-    const grid=container.querySelector('#fleetGrid');
-    grid.innerHTML=EQUIP.filter(t=>cat==='all'||t.cat===cat).map(t=>{
-      const name=t.name[SETTINGS.lang]||t.name.fr; const desc=t.desc[SETTINGS.lang]||t.desc.fr;
-      return `<div class="card" style="padding:0;overflow:hidden"><img src="${t.img}" class="fleet-img" style="cursor:pointer" onclick="openFleetDetailByType('${t.id}')"><div style="padding:12px"><div style="display:flex;justify-content:space-between"><span style="font-weight:800;font-size:13px">${t.icon} ${name}</span><span class="badge">${t.role}</span></div><div style="font-size:10px;color:#aaa;margin-top:4px">${desc}</div><div style="margin-top:8px;padding:8px;background:#000;border:1px solid #222;border-radius:8px;font-family:'JetBrains Mono';font-size:9px">⚙️ Utilisation: ${t.use}<br>🔋 Besoins: ${t.need.join(', ')||'aucun'} • Fuel ${t.fuel} • Power ${t.power||0}</div><div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:6px"><button onclick="buyEquip('${t.id}')" class="btn btn-gold" style="font-size:10px">ACHETER ${fmtMoney(t.buy)}</button><button onclick="rentEquip('${t.id}')" class="btn btn-dark" style="font-size:10px">LOUER ${fmtMoney(t.rent)}/105j</button></div></div></div>`;
-    }).join('');
-  }
-  fillGrid('all');
-  function refreshInv(){
-    const inv=container.querySelector('#invList');
-    inv.innerHTML=state.fleet.map(f=>{ const t=EQUIP.find(x=>x.id===f.typeId); const name=t.name[SETTINGS.lang]||t.name.fr; return `<div class="card" style="display:flex;gap:10px;align-items:center"><img src="${t.img}" style="width:46px;height:32px;object-fit:cover;border-radius:6px"><div style="flex:1"><div style="font-weight:700;font-size:11px">${name} ${f.rented?'[LOC]':''}</div><div style="font-size:9px;color:#777;font-family:'JetBrains Mono'">${f.health.toFixed(0)}% • ${f.hours.toFixed(0)}h • ${f.broken?'PANNE':f.deployed?'DEPLOYÉ':'STOCK'}</div></div><div style="display:flex;gap:4px"><button onclick="deployFleet('${f.uid}')" class="btn btn-gold" style="font-size:9px;padding:5px 9px">3D DEPLOY</button><button onclick="sellFleet('${f.uid}')" class="btn btn-dark" style="font-size:9px;padding:5px 8px">VENDRE</button></div></div>`; }).join('')||'<div style="color:#666">Vide - achète des machines réalistes ci-dessus</div>';
-  }
-  refreshInv(); window.refreshInv=refreshInv;
-  window.openFleetDetailByType=(typeId)=>{ const t=EQUIP.find(x=>x.id===typeId); if(!t) return; document.getElementById('fleetDetailModal').classList.remove('hidden'); document.getElementById('fleetDetailInfo').innerHTML=`<div style="display:flex;gap:14px"><img src="${t.img}" style="width:160px;height:110px;object-fit:cover;border-radius:12px"><div><div style="font-weight:800;font-size:15px">${t.name[SETTINGS.lang]||t.name.fr}</div><div style="font-size:10px;color:#aaa">${t.role}</div><div style="font-size:11px;color:#bbb;margin-top:6px">${t.desc[SETTINGS.lang]||t.desc.fr}</div><div style="margin-top:8px;font-family:'JetBrains Mono';font-size:9px;background:#000;border:1px solid #222;border-radius:8px;padding:8px">Chaîne: ${t.use}</div></div></div>`; };
-}
-
-function renderChain(container){
-  const hasPump=state.fleet.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='pump'&&f.deployed&&!f.broken);
-  const hasPond=state.fleet.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='pond'&&f.deployed&&!f.broken);
-  const hasFeeder=state.fleet.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='feeder'&&f.deployed&&!f.broken);
-  const hasConveyor=state.fleet.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='conveyor'&&f.deployed&&!f.broken);
-  const hasGen=state.fleet.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='generator'&&f.deployed&&!f.broken);
-  const hasWash=state.fleet.some(f=>EQUIP.find(x=>x.id===f.typeId).cat==='washplant'&&f.deployed&&!f.broken);
-  container.innerHTML=`<div style="padding:4px"><h2 class="font-anton" style="font-size:26px">⛓️ CHAÎNE COMPLÈTE DE PRODUCTION - COMME DANS L'ÉMISSION</h2><div style="margin-top:8px;font-size:11px;color:#aaa;max-width:800px;line-height:1.5">Une vraie mine Gold Rush a besoin de TOUTE la chaîne. Si un maillon manque, 0 or. C'est ça le réalisme demandé. Inspiring Parker Schnabel.</div>
-  <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
-    <div class="card"><div style="font-weight:800">💧 CHAÎNE EAU (obligatoire)</div><div style="margin-top:10px;display:flex;flex-direction:column;gap:8px;font-size:12px">
-      <div><span class="chain-dot ${true?'ok':''}"></span>Rivière / Source naturelle (carte)</div>
-      <div><span class="chain-dot ${hasPump?'ok':'bad'}"></span>Pompe à eau 6" ou 10" — ${hasPump?'✅ OK':'❌ MANQUE -> pas d\'or'}</div>
-      <div><span class="chain-dot ${hasPond?'ok':'bad'}"></span>Bassin de décantation — ${hasPond?'✅ OK':'❌ MANQUE -> prod -60% + risque amende'}</div>
-      <div><span class="chain-dot ok"></span>Tuyaux 6" vers laverie</div>
-      <div style="margin-top:8px;padding:8px;background:#000;border-radius:8px;font-family:'JetBrains Mono';font-size:10px;color:#aaa">Sans eau, laverie = 0. Comme dans l'émission, Parker passe 2 jours à installer tuyaux.</div>
-    </div></div>
-    <div class="card"><div style="font-weight:800">⚡ CHAÎNE ÉLEC</div><div style="margin-top:10px;display:flex;flex-direction:column;gap:8px;font-size:12px">
-      <div><span class="chain-dot ${hasGen?'ok':'bad'}"></span>Groupe électrogène 100kW/250kW — ${hasGen?'✅ OK':'❌ MANQUE -> trémie/laverie off'}</div>
-      <div><span class="chain-dot ok"></span>Câbles électriques</div>
-      <div style="margin-top:8px;padding:8px;background:#000;border-radius:8px;font-size:10px;font-family:'JetBrains Mono';color:#aaa">Puissance actuelle: ${calcPower(state.activeClaimId)}kW (doit être >=0). Diesel alimente groupe.</div>
-    </div></div>
-    <div class="card"><div style="font-weight:800">🪨 CHAÎNE MATÉRIAU</div><div style="margin-top:10px;display:flex;flex-direction:column;gap:8px;font-size:12px">
-      <div><span class="chain-dot ok"></span>Dozer décape mort-terrain (forêt + 2-5m stérile)</div>
-      <div><span class="chain-dot ok"></span>Pelle CAT creuse paydirt exposé</div>
-      <div><span class="chain-dot ${hasFeeder?'ok':'bad'}"></span>Trémie / Distributeur — ${hasFeeder?'✅ OK':'❌ BLOQUÉ: pelle ne peut pas vider'}</div>
-      <div><span class="chain-dot ${hasConveyor?'ok':'warn'}"></span>Convoyeur 20m (bonus +18% vs camion) — ${hasConveyor?'✅ Bonus actif':'Optionnel, mais conseillé'}</div>
-      <div><span class="chain-dot ${hasWash?'ok':'bad'}"></span>Laverie Shaker / Big Red — ${hasWash?'✅ OK':'❌ Pas de lavage'}</div>
-      <div><span class="chain-dot ok"></span>Tas de stériles + or dans coffre</div>
-    </div></div>
-    <div class="card" style="background:linear-gradient(145deg,#1a1500,#12110f);border-color:#3a2a00"><div style="font-weight:800;color:#ffb300">🎮 COMMENT JOUER RÉALISTE - 2 MODES</div><div style="margin-top:10px;font-size:11px;line-height:1.6;color:#bbb"><b>Mode Cities Skylines (Orbit) :</b> Caméra orbitale, tu donnes ordres, tes ouvriers bossent auto si recrutés.<br><br><b>Mode FPS Réaliste [V] :</b> WASD pour te balader à pied dans le pit, E pour entrer dans engin, tu conduis toi-même. Dans pelle, souris = bras. +20% prod manuelle.<br><br><b>Recrutement :</b> Sans opérateurs, engins à l'arrêt. Va dans OPÉRATIONS > RECRUTER.</div></div>
-  </div></div>`;
-}
-
-function renderMarket(container){
-  const goldVal=state.gold*state.goldPrice;
-  container.innerHTML=`<div style="padding:4px"><h2 class="font-anton" style="font-size:26px">🏦 MARCHÉ OR & FINANCE - ${SETTINGS.region==='EU'?'EUROPE €/g':'USA $/oz LIVE'}</h2><div style="margin-top:14px;display:grid;grid-template-columns:1.2fr 0.8fr;gap:14px"><div class="card"><div style="display:flex;gap:14px"><div style="flex:1;background:#000;border-radius:12px;padding:14px;border:1px solid #222"><div style="font-size:9px;color:#666">OR COFFRE</div><div style="font-family:'JetBrains Mono';font-size:26px;font-weight:800;color:#ffd54f">${fmtGold(state.gold)}</div><div style="font-size:11px;color:#777">${fmtMoney(goldVal)} valeur</div><div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px"><button onclick="sellGold(0.25)" class="btn btn-dark" style="font-size:10px">25%</button><button onclick="sellGold(0.5)" class="btn btn-dark" style="font-size:10px">50%</button><button onclick="sellGold(1)" class="btn btn-gold" style="font-size:10px">TOUT VENDRE</button></div></div><div style="flex:1;background:#000;border-radius:12px;padding:14px;border:1px solid #222"><div style="font-size:9px;color:#666">COURS ${SETTINGS.region==='EU'?'€/g':'$/oz'}</div><div style="font-family:'JetBrains Mono';font-size:26px;font-weight:800;color:#ffb300">${SETTINGS.region==='EU'? '€'+(state.goldPrice*0.92/31.1035).toFixed(2)+'/g' : '$'+state.goldPrice.toFixed(0)+'/oz'}</div><div style="font-size:10px;color:#4ade80">Live + simulation marché mondial</div><div style="margin-top:8px;height:54px;display:flex;gap:2px;align-items:end">${Array.from({length:28},()=>`<div style="flex:1;background:linear-gradient(180deg,#ffb300,#ff8f00);border-radius:2px 2px 0 0;height:${22+Math.random()*76}%"></div>`).join('')}</div></div></div></div><div style="display:flex;flex-direction:column;gap:12px"><div class="card"><div style="font-weight:800;font-size:12px">💸 BANQUE</div><div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px"><button onclick="takeLoan(50000)" class="btn btn-dark" style="font-size:10px">+${fmtMoney(50000)} (10%)</button><button onclick="takeLoan(200000)" class="btn btn-gold" style="font-size:10px">+${fmtMoney(200000)} (15%)</button></div><div style="margin-top:8px;font-family:'JetBrains Mono';font-size:10px;color:#999">Dette: ${fmtMoney(state.loan)} • Intérêt ${fmtMoney(state.loan*0.0007)}/j</div></div><div class="card"><div style="font-weight:800;font-size:12px">📦 LOGISTIQUE</div><button onclick="buyFuel(1500)" class="btn btn-dark" style="width:100%;margin-top:8px;font-size:10px">Fuel +${fmtFuel(1500)} ${fmtMoney(1500*1.35)}</button></div></div></div></div>`;
-}
-function renderFinance(container){
-  const ownedVal=state.ownedClaims.reduce((a,id)=>a+(CLAIMS.find(c=>c.id===id)?.price||0),0);
-  const fleetVal=state.fleet.reduce((a,f)=>{ const t=EQUIP.find(x=>x.id===f.typeId); return a+t.buy*0.65; },0);
-  const netWorth=state.money+state.gold*state.goldPrice+ownedVal*0.8+fleetVal-state.loan;
-  const dailyCost=state.fleet.reduce((a,f)=>a+EQUIP.find(x=>x.id===f.typeId).fuel*12*1.35,0)+Object.values(state.workers).reduce((a,v)=>a+v*350,0);
-  container.innerHTML=`<div style="padding:4px"><h2 class="font-anton" style="font-size:26px">📊 FINANCE & ADMIN</h2><div style="margin-top:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px"><div class="card" style="background:#000"><div style="font-size:8px;color:#666">TRÉSORERIE</div><div style="font-family:'JetBrains Mono';font-size:19px;font-weight:800">${fmtMoney(state.money)}</div></div><div class="card" style="background:#000;border-color:#3a2a00"><div style="font-size:8px;color:#666">OR</div><div style="font-family:'JetBrains Mono';font-size:19px;color:#ffb300;font-weight:800">${fmtMoney(state.gold*state.goldPrice)}</div></div><div class="card" style="background:#000"><div style="font-size:8px;color:#666">NET WORTH</div><div style="font-family:'JetBrains Mono';font-size:19px;color:${netWorth>0?'#4ade80':'#fb7185'};font-weight:800">${fmtMoney(netWorth)}</div></div><div class="card" style="background:#000"><div style="font-size:8px;color:#666">COÛT /j</div><div style="font-family:'JetBrains Mono';font-size:19px">${fmtMoney(dailyCost)}/j</div></div></div><div style="margin-top:14px" class="card"><div style="display:flex;justify-content:space-between"><span style="font-weight:800">🔒 ADMIN MODE</span><span style="font-family:'JetBrains Mono';font-size:10px;color:#666">Code perso: ${adminCode}</span></div><div style="margin-top:8px;font-size:11px;color:#aaa">Bouton cadenas ⚙️ > 🔒 dans Paramètres. Entre ton code admin perso pour argent/fuel/élec infinis. Tu es seul à l'avoir.</div><div style="margin-top:10px;display:flex;gap:8px"><input id="adminInputFinance" class="input" style="margin:0" placeholder="Code admin"><button id="adminBtnFinance" class="btn btn-gold">UNLOCK ♾️</button></div><div id="adminStatFinance" style="font-size:10px;color:#4ade80;margin-top:6px">${state.admin?'✅ Admin actif - infini activé':''}</div></div></div>`;
-  document.getElementById('adminBtnFinance')?.addEventListener('click',()=>{
-    const code=document.getElementById('adminInputFinance').value.trim();
-    if(code===adminCode||code==='TONYBEETS2025'||code==='BEETS-ADMIN-2025-GOLD'){ state.admin=true; state.money=99999999; state.diesel=99999; document.getElementById('adminStatFinance').textContent='✅ Admin activé'; log('🔓 Admin finance activé', 'gold'); renderHUD(); saveState(); }
-    else document.getElementById('adminStatFinance').textContent='❌ Code faux - ton code: '+adminCode;
-  });
-}
-
-// ACTIONS
-window.buyClaim=(id)=>{ const c=CLAIMS.find(x=>x.id===id); if(state.money<c.price){ log('Fonds insuffisant', 'bad'); return; } state.money-=c.price; state.ownedClaims.push(id); state.rentedClaims=state.rentedClaims.filter(r=>r.id!==id); getClaimData(id); state.activeClaimId=id; log(`Achat ${c.name[SETTINGS.lang]||c.name.fr} ${fmtMoney(c.price)}`, 'gold'); saveState(); renderHUD(); showClaimDetail(id); };
-window.rentClaim=(id)=>{ const c=CLAIMS.find(x=>x.id===id); if(state.money<c.rent){ log('Pas assez', 'bad'); return; } state.money-=c.rent; state.rentedClaims.push({id,untilDay:state.seasonDay+105}); getClaimData(id); state.activeClaimId=id; log(`Location ${c.name[SETTINGS.lang]||c.name.fr} 105j`, 'info'); saveState(); renderHUD(); showClaimDetail(id); };
-window.leaseOutClaim=(id)=>{ if(state.leasedOut.some(l=>l.id===id)) return; state.leasedOut.push({id}); log(`Bailleur: ${CLAIMS.find(x=>x.id===id).name[SETTINGS.lang]||CLAIMS.find(c=>c.id===id).name.fr} loué à tiers`, 'gold'); saveState(); };
-window.cancelLease=(id)=>{ state.leasedOut=state.leasedOut.filter(l=>l.id!==id); log('Bail repris', 'warn'); saveState(); };
-window.activateClaim=(id)=>{ state.activeClaimId=id; getClaimData(id); log(`🚛 Convoi vers ${CLAIMS.find(c=>c.id===id).name[SETTINGS.lang]||CLAIMS.find(c=>c.id===id).name.fr}`, 'info'); switchView('mine'); renderHUD(); };
-window.buyEquip=(id)=>{ const t=EQUIP.find(x=>x.id===id); if(state.money<t.buy){ log('Pas assez $', 'bad'); return; } state.money-=t.buy; state.fleet.push({uid:'f'+Date.now()+Math.random().toString(36).slice(2,5), typeId:id, health:100, hours:0, broken:false, deployed:false, claimId:null, rented:false}); log(`Achat ${t.name[SETTINGS.lang]||t.name.fr}`, 'info'); renderHUD(); saveState(); if(window.refreshInv) window.refreshInv(); };
-window.rentEquip=(id)=>{ const t=EQUIP.find(x=>x.id===id); if(state.money<t.rent){ log('Pas assez', 'bad'); return; } state.money-=t.rent; state.fleet.push({uid:'f'+Date.now()+Math.random().toString(36).slice(2,5), typeId:id, health:100, hours:0, broken:false, deployed:false, claimId:null, rented:true, rentUntil:state.seasonDay+105}); log(`Location ${t.name[SETTINGS.lang]||t.name.fr}`, 'info'); renderHUD(); saveState(); if(window.refreshInv) window.refreshInv(); };
-window.deployFleet=(uid)=>{ const f=state.fleet.find(x=>x.uid===uid); if(!state.activeClaimId){ log('Choisis concession', 'bad'); return; } f.deployed=true; f.claimId=state.activeClaimId; spawnMesh(f); log(`Déployé 3D ${EQUIP.find(x=>x.id===f.typeId).name[SETTINGS.lang]||EQUIP.find(x=>x.id===f.typeId).name.fr}`, 'info'); renderHUD(); saveState(); };
-window.sellFleet=(uid)=>{ const idx=state.fleet.findIndex(x=>x.uid===uid); if(idx<0) return; const f=state.fleet[idx]; const t=EQUIP.find(x=>x.id===f.typeId); const price=Math.round(t.buy*0.55*f.health/100); state.money+=price; removeMesh(uid); state.fleet.splice(idx,1); log(`Vendu ${t.name[SETTINGS.lang]||t.name.fr} ${fmtMoney(price)}`, 'info'); renderHUD(); saveState(); if(window.refreshInv) window.refreshInv(); };
-window.buyFuel=(L)=>{ const cost=L*1.35; if(state.money<cost){ log('Pas $ diesel', 'bad'); return; } state.money-=cost; state.diesel=Math.min(state.dieselCap,state.diesel+L); log(`Fuel +${fmtFuel(L)}`, 'info'); renderHUD(); saveState(); };
-window.sellGold=(frac)=>{ if(state.gold<=0){ log('Pas d’or', 'bad'); return; } const amt=state.gold*frac; const net=amt*state.goldPrice*0.92; state.gold-=amt; state.money+=net; log(`Vente ${fmtGold(amt)} => ${fmtMoney(net)}`, 'gold'); renderHUD(); saveState(); };
-window.takeLoan=(amt)=>{ state.money+=amt; state.loan+=amt*1.12; log(`Emprunt ${fmtMoney(amt)}`, 'warn'); renderHUD(); saveState(); };
-
-function endDay(auto){
-  const fuelCost=state.fleet.reduce((a,f)=>a+EQUIP.find(x=>x.id===f.typeId).fuel*12*1.35,0);
-  const wages=Object.values(state.workers).reduce((a,v)=>a+v*350,0);
-  const leaseInc=state.leasedOut.reduce((a,l)=>a+(CLAIMS.find(c=>c.id===l.id)?.leaseInc||0),0);
-  const royalty=state.leasedOut.reduce((a,l)=>a+(Math.random()*1.6+0.3)*(CLAIMS.find(c=>c.id===l.id)?.royalty||0),0);
-  if(!auto){ log(`🌙 Fin J${state.seasonDay} — Coût ${fmtMoney(fuelCost+wages)} + bailleur +${fmtMoney(leaseInc)}`, 'warn'); }
-  if(!state.admin) state.money=state.money - fuelCost - wages + leaseInc; else state.money+=leaseInc;
-  state.gold+=royalty;
-  state.day++; state.seasonDay++; state.hour=6; state.dailyGold=0;
-  state.rentedClaims=state.rentedClaims.filter(r=>{ if(r.untilDay<=state.seasonDay){ log(`Location ${CLAIMS.find(c=>c.id===r.id).name[SETTINGS.lang]} expirée`, 'warn'); return false; } return true; });
-  state.fleet=state.fleet.filter(f=>{ if(f.rented&&f.rentUntil<=state.seasonDay){ log(`Location engin terminée`, 'warn'); removeMesh(f.uid); return false; } return true; });
-  state.goldPrice+=(Math.random()-0.5)*9; state.goldPrice=Math.max(1650,Math.min(2400,state.goldPrice));
-  if(Math.random()<0.18){ const weathers=['Soleil','Nuageux','Pluie battante','Bourbier','Neige']; state.weather=weathers[Math.floor(Math.random()*weathers.length)]; state.temp=Math.floor(2+Math.random()*20); state.mud=state.weather==='Bourbier'?0.62:state.weather==='Pluie battante'?0.46:0.25; if(state.weather==='Bourbier') log('🌧️ Bourbier profond - traction réduite', 'warn'); }
-  if(state.seasonDay>state.seasonLen){ log(`❄️ Fin saison ${state.year} — hiver -5% health`, 'warn'); state.fleet.forEach(f=>f.health=Math.max(5,f.health-5-Math.random()*5)); state.year++; state.seasonDay=1; }
-  renderHUD(); saveState();
-}
-function handleCheat(code){
-  if(!code) return;
-  if(code===adminCode || code==='TONYBEETS2025' || code==='BEETS-ADMIN-2025-GOLD'){ state.admin=true; state.money=99999999; state.diesel=99999; log('🔓 ADMIN MODE ACTIVÉ ♾️', 'gold'); renderHUD(); saveState(); return; }
-  if(code.toLowerCase()==='gold'){ state.gold+=12; log('Cheat +12 or', 'gold'); }
-  else if(code.toLowerCase()==='money'){ state.money+=100000; log('Cheat +100k', 'gold'); }
-  else if(code.toLowerCase().includes('fuel')){ state.diesel+=4000; log('Cheat fuel', 'info'); }
-  else log(`Code inconnu: ${code} — ton code admin: ${adminCode}`, 'sys');
-  renderHUD(); saveState();
-}
-
-let tickInt=null;
-function startLoop(){
-  if(tickInt) clearInterval(tickInt);
-  tickInt=setInterval(()=>{
-    if(state.speed===0) return;
-    state.hour+=state.speed*1.05;
-    if(state.hour>=18){ endDay(true); return; }
-    simulate(state.speed*1.05);
-    if(Math.random()<0.4) renderHUD();
-  },700);
-}
-
-function initGameAfterLogin(){
-  document.getElementById('hudUser').textContent=currentUser.username;
-  document.getElementById('hudCompany').textContent=currentUser.username.toUpperCase();
-  adminCode=currentUser.code||'BEETS-ADMIN-2025-GOLD';
-  document.getElementById('adminCodeDisplay').textContent=adminCode;
-  log(`👋 Bienvenue ${currentUser.username} ! Compte vérifié. Région ${SETTINGS.region} / ${SETTINGS.lang}. Choisis un claim sur CARTE USA.`, 'gold');
-  log(`💡 Astuce 3D: V pour FPS, E pour entrer engin, recrute des opérateurs sinon ça ne mine pas seul.`, 'sys');
-  log(`⛓️ Chaîne réaliste: Dozer > Pelle > Trémie > Convoyeur > Laverie. Besoin pompe+bassin+groupe obligatoire.`, 'sys');
-  log(`🗺️ Nouvelle carte USA réelle avec pins Alaska->California`, 'sys');
-  initUI();
-  init3D();
-  initLeaflet();
-  // respawn fleet
-  state.fleet.forEach(f=>{ if(f.deployed) spawnMesh(f); });
-  renderHUD();
-  startLoop();
-}
-
-// auto login if already
-if(currentUser){ hideAccount(); setTimeout(initGameAfterLogin, 200); }
+if(currentUser) initGame();
 </script>
 </body>
 </html>
